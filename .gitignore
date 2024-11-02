@@ -1,0 +1,10 @@
+.env
+pycache/
+*.pyc
+venv/
+dist/
+build/
+*.spec
+autocorrect.log
+AutocorrectApp.zip
+.idea

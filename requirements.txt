@@ -1,0 +1,5 @@
+PyQt6~=6.7.1
+requests~=2.32.3
+pyperclip~=1.9.0
+keyboard~=0.13.5
+pynput~=1.7.7
