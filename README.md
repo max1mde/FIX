@@ -1,4 +1,9 @@
-# Autocorrect
+<div align="center">
+  <h1>Autocorrect</h1>
+</div>
+
+![New Project - 2024-11-03T000755 649](https://github.com/user-attachments/assets/791142ed-fb65-4b33-b9df-5d44495e0192)
+
 
 A Python-based autocorrect tool that enhances text input across Windows applications with:
 - Automatic capitalization & punctuation
@@ -27,7 +32,7 @@ source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
-4. Create an API key on https://openrouter.ai/ key:
+4. Create an API key on https://openrouter.ai/:
 
 
 ## Usage
