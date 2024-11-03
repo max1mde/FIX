@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/76b36636-3553-4b34-aeee-625a75951db9">
+  <img src="https://github.com/user-attachments/assets/4fb3198a-37de-480b-b8fd-90cf70a66e12">
 </div>
 
 A Python-based autocorrect tool that enhances text input across Windows applications with:
