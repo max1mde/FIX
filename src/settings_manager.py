@@ -2,7 +2,6 @@ import json
 import os
 from pathlib import Path
 
-
 class SettingsManager:
     def __init__(self):
         self.settings = None
@@ -29,40 +28,44 @@ class SettingsManager:
         self.settings[key] = value
         self.save_settings()
 
-    def get_excluded_apps(self):
-        return self.settings.get('excluded_apps', [])
-
     def get_replacements(self):
         return self.settings.get('replacements', {})
 
     def reset_settings(self):
         self.settings = {
-            'auto_capitalize': True,
-            'auto_punctuate': True,
-            'ai_rephrase': True,
-            'german_noun_capitalization': True,
-            'live_noun_capitalization': True,
-            'alternative_language': 'german',
-            'ai_rephrase_prompt': 'You are a helpful writing assistant. Provide 3 different concise rephrasing of '
-                                  'the given text, separated by | characters. Please provide 3 alternative '
-                                  'phrasings for the following text (The first one just spelling and punctiotion '
-                                  'fixes no different words, only the next phrases should contain alternative words)  '
-                                  '(if the text is longer thann 20 words only'
-                                  'one alternative phrasing):',
-            'ai_translation_prompt': 'You are a basic translater. Add punctuation and use correct spelling. '
-                                     'Translate the following text to English if it is in any other language than '
-                                     'English, else translate it to %alternative_language% and ONLY answer with the '
-                                     'translated message:',
-            'fix_hotkey': 'Alt+1',
-            'rephrase_hotkey': 'Alt+2',
-            'switch_phrasings': 'Alt+3',
-            'translation_hotkey': 'Alt+4',
-            'custom_prompt_hotkey': 'Alt+5',
+            'fix.capitalization': True,
+            'fix.punctuate': True,
+            'fix.german_noun_capitalization': True,
+            'fix.use_replacements': True,
+            'fix.hotkey': 'Ctrl+F8',
+            'fix.auto_fix_on_send': True,
+            'rephrase.hotkey': 'Ctrl+F9',
+            'rephrase.switch_phrasings_hotkey': 'Ctrl+F10',
+            'rephrase.use_replacements': True,
+            'rephrase.prompt': 'You are a helpful writing assistant. Provide 3 different concise rephrasing of '
+                             'the given text, separated by | characters. Please provide 3 alternative '
+                             'phrasings for the following text (The first one just spelling and punctuation '
+                             'fixes no different words, only the next phrases should contain alternative words) '
+                             '(if the text is longer than 20 words only one alternative phrasing):',
+
+            'translate.hotkey': 'Ctrl+F11',
+            'translate.use_replacements': True,
+            'translate.alternative_language': 'german',
+            'translate.prompt': 'You are a basic translater. Add punctuation and use correct spelling. '
+                              'Translate the following text to English if it is in any other language than '
+                              'English, else translate it to %alternative_language% and ONLY answer with the '
+                              'translated message:',
+
+            'custom_prompt.hotkey': 'Ctrl+F12',
+            'custom_prompt.use_replacements': True,
+            'custom_prompt.auto_custom_prompt': True,
+            'custom_prompt.auto_select_text': True,
+
             'open_router_key': '',
-            'excluded_apps': [],
             'replacements': {
                 'i': 'I',
                 'jz': 'jetzt',
+                'ig': 'I guess',
                 'u': 'you',
                 'ur': 'your',
                 'r': 'are',
@@ -119,7 +122,6 @@ class SettingsManager:
                 'dc': 'Discord',
                 'insta': 'Instagram',
                 'bb': 'Bye',
-                'ig': 'I guess'
             }
         }
         self.save_settings()

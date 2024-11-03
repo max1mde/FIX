@@ -1,10 +1,8 @@
 import sys
-
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QIcon
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                             QCheckBox, QLineEdit, QLabel, QPushButton,
-                             QDialog,
+                             QCheckBox, QLineEdit, QLabel, QPushButton, QDialog,
                              QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem)
 
 
@@ -16,10 +14,8 @@ class ConfirmationDialog(QDialog):
         self.setFixedSize(300, 150)
 
         layout = QVBoxLayout(self)
-
         label = QLabel(message)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
         layout.addWidget(label)
 
         buttons_layout = QHBoxLayout()
@@ -34,6 +30,221 @@ class ConfirmationDialog(QDialog):
         buttons_layout.addWidget(no_btn)
         buttons_layout.addWidget(cancel_btn)
         layout.addLayout(buttons_layout)
+
+
+class FixModuleWindow(QDialog):
+    def __init__(self, settings_manager, parent=None):
+        super().__init__(parent)
+        self.settings = settings_manager
+        self.setWindowTitle("Fix Module Settings")
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setup_ui()
+        self.load_settings()
+        self.settings_modified = False
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.capitalization = QCheckBox("Capitalization")
+        self.punctuate = QCheckBox("Punctuation")
+        self.german_noun_capitalization = QCheckBox("German Noun Capitalization")
+        self.use_replacements = QCheckBox("Use Replacements")
+        self.auto_fix_on_send = QCheckBox("Auto Fix on Send")
+
+        self.hotkey_input = QKeySequenceEdit()
+        hotkey_label = QLabel("Fix Hotkey:")
+
+        for widget in [self.capitalization, self.punctuate, self.german_noun_capitalization,
+                       self.use_replacements, self.auto_fix_on_send]:
+            widget.stateChanged.connect(self.mark_modified)
+            layout.addWidget(widget)
+
+        layout.addWidget(hotkey_label)
+        layout.addWidget(self.hotkey_input)
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_settings)
+        layout.addWidget(save_btn)
+
+    def load_settings(self):
+        self.capitalization.setChecked(self.settings.get_setting('fix.capitalization', True))
+        self.punctuate.setChecked(self.settings.get_setting('fix.punctuate', True))
+        self.german_noun_capitalization.setChecked(self.settings.get_setting('fix.german_noun_capitalization', True))
+        self.use_replacements.setChecked(self.settings.get_setting('fix.use_replacements', True))
+        self.auto_fix_on_send.setChecked(self.settings.get_setting('fix.auto_fix_on_send', True))
+        self.hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('fix.hotkey', 'Ctrl+F8')))
+
+    def save_settings(self):
+        self.settings.set_setting('fix.capitalization', self.capitalization.isChecked())
+        self.settings.set_setting('fix.punctuate', self.punctuate.isChecked())
+        self.settings.set_setting('fix.german_noun_capitalization', self.german_noun_capitalization.isChecked())
+        self.settings.set_setting('fix.use_replacements', self.use_replacements.isChecked())
+        self.settings.set_setting('fix.auto_fix_on_send', self.auto_fix_on_send.isChecked())
+        self.settings.set_setting('fix.hotkey', self.hotkey_input.keySequence().toString())
+        self.settings_modified = False
+        self.close()
+
+    def mark_modified(self):
+        self.settings_modified = True
+
+
+class RephaseModuleWindow(QDialog):
+    def __init__(self, settings_manager, parent=None):
+        super().__init__(parent)
+        self.settings = settings_manager
+        self.setWindowTitle("Rephrase Module Settings (AI)")
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setup_ui()
+        self.load_settings()
+        self.settings_modified = False
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.use_replacements = QCheckBox("Use Replacements")
+        self.use_replacements.stateChanged.connect(self.mark_modified)
+
+        self.prompt = QLineEdit()
+        self.prompt.textChanged.connect(self.mark_modified)
+        prompt_label = QLabel("Rephrase Prompt:")
+
+        self.hotkey_input = QKeySequenceEdit()
+        hotkey_label = QLabel("Rephrase Hotkey:")
+
+        self.switch_hotkey_input = QKeySequenceEdit()
+        switch_label = QLabel("Switch Phrasings Hotkey:")
+
+        layout.addWidget(self.use_replacements)
+        layout.addWidget(prompt_label)
+        layout.addWidget(self.prompt)
+        layout.addWidget(hotkey_label)
+        layout.addWidget(self.hotkey_input)
+        layout.addWidget(switch_label)
+        layout.addWidget(self.switch_hotkey_input)
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_settings)
+        layout.addWidget(save_btn)
+
+    def load_settings(self):
+        self.use_replacements.setChecked(self.settings.get_setting('rephrase.use_replacements', True))
+        self.prompt.setText(self.settings.get_setting('rephrase.prompt', ''))
+        self.hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('rephrase.hotkey', 'Ctrl+F9')))
+        self.switch_hotkey_input.setKeySequence(
+            QKeySequence(self.settings.get_setting('rephrase.switch_phrasings_hotkey', 'Ctrl+F10')))
+
+    def save_settings(self):
+        self.settings.set_setting('rephrase.use_replacements', self.use_replacements.isChecked())
+        self.settings.set_setting('rephrase.prompt', self.prompt.text())
+        self.settings.set_setting('rephrase.hotkey', self.hotkey_input.keySequence().toString())
+        self.settings.set_setting('rephrase.switch_phrasings_hotkey', self.switch_hotkey_input.keySequence().toString())
+        self.settings_modified = False
+        self.close()
+
+    def mark_modified(self):
+        self.settings_modified = True
+
+
+class TranslateModuleWindow(QDialog):
+    def __init__(self, settings_manager, parent=None):
+        super().__init__(parent)
+        self.settings = settings_manager
+        self.setWindowTitle("Translate Module Settings (AI)")
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setup_ui()
+        self.load_settings()
+        self.settings_modified = False
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.use_replacements = QCheckBox("Use Replacements")
+        self.use_replacements.stateChanged.connect(self.mark_modified)
+
+        self.prompt = QLineEdit()
+        self.prompt.textChanged.connect(self.mark_modified)
+        prompt_label = QLabel("Translation Prompt:")
+
+        self.alternative_language = QLineEdit()
+        self.alternative_language.textChanged.connect(self.mark_modified)
+        lang_label = QLabel("Alternative Language:")
+
+        self.hotkey_input = QKeySequenceEdit()
+        hotkey_label = QLabel("Translation Hotkey:")
+
+        layout.addWidget(self.use_replacements)
+        layout.addWidget(prompt_label)
+        layout.addWidget(self.prompt)
+        layout.addWidget(lang_label)
+        layout.addWidget(self.alternative_language)
+        layout.addWidget(hotkey_label)
+        layout.addWidget(self.hotkey_input)
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_settings)
+        layout.addWidget(save_btn)
+
+    def load_settings(self):
+        self.use_replacements.setChecked(self.settings.get_setting('translate.use_replacements', True))
+        self.prompt.setText(self.settings.get_setting('translate.prompt', ''))
+        self.alternative_language.setText(self.settings.get_setting('translate.alternative_language', 'german'))
+        self.hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('translate.hotkey', 'Ctrl+F11')))
+
+    def save_settings(self):
+        self.settings.set_setting('translate.use_replacements', self.use_replacements.isChecked())
+        self.settings.set_setting('translate.prompt', self.prompt.text())
+        self.settings.set_setting('translate.alternative_language', self.alternative_language.text())
+        self.settings.set_setting('translate.hotkey', self.hotkey_input.keySequence().toString())
+        self.settings_modified = False
+        self.close()
+
+    def mark_modified(self):
+        self.settings_modified = True
+
+
+class CustomPromptModuleWindow(QDialog):
+    def __init__(self, settings_manager, parent=None):
+        super().__init__(parent)
+        self.settings = settings_manager
+        self.setWindowTitle("Custom Prompt Module Settings (AI)")
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setup_ui()
+        self.load_settings()
+        self.settings_modified = False
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.use_replacements = QCheckBox("Use Replacements")
+        self.auto_custom_prompt = QCheckBox("Auto Custom Prompt")
+
+        for widget in [self.use_replacements, self.auto_custom_prompt]:
+            widget.stateChanged.connect(self.mark_modified)
+            layout.addWidget(widget)
+
+        self.hotkey_input = QKeySequenceEdit()
+        hotkey_label = QLabel("Custom Prompt Hotkey:")
+        layout.addWidget(hotkey_label)
+        layout.addWidget(self.hotkey_input)
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_settings)
+        layout.addWidget(save_btn)
+
+    def load_settings(self):
+        self.use_replacements.setChecked(self.settings.get_setting('custom_prompt.use_replacements', True))
+        self.auto_custom_prompt.setChecked(self.settings.get_setting('custom_prompt.auto_custom_prompt', True))
+        self.hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('custom_prompt.hotkey', 'Ctrl+F12')))
+
+    def save_settings(self):
+        self.settings.set_setting('custom_prompt.use_replacements', self.use_replacements.isChecked())
+        self.settings.set_setting('custom_prompt.auto_custom_prompt', self.auto_custom_prompt.isChecked())
+        self.settings.set_setting('custom_prompt.hotkey', self.hotkey_input.keySequence().toString())
+        self.settings_modified = False
+        self.close()
+
+    def mark_modified(self):
+        self.settings_modified = True
 
 
 class ReplacementsDialog(QDialog):
@@ -143,103 +354,52 @@ class SettingsWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        features_group = QGroupBox("Features")
-        features_layout = QVBoxLayout()
+        general_group = QGroupBox("General")
+        general_layout = QVBoxLayout()
 
-        self.auto_cap = QCheckBox("Auto-capitalize")
-        self.auto_cap.stateChanged.connect(self.mark_modified)
-        self.auto_punct = QCheckBox("Auto-punctuate")
-        self.auto_punct.stateChanged.connect(self.mark_modified)
-        self.ai_rephrase = QCheckBox("AI Rephrase")
-        self.ai_rephrase.stateChanged.connect(self.mark_modified)
-        self.german_noun_capitalization = QCheckBox("German Noun Capitalization")
-        self.german_noun_capitalization.stateChanged.connect(self.mark_modified)
-
-        features_layout.addWidget(self.auto_cap)
-        features_layout.addWidget(self.auto_punct)
-        features_layout.addWidget(self.ai_rephrase)
-        features_layout.addWidget(self.german_noun_capitalization)
-        features_group.setLayout(features_layout)
-        layout.addWidget(features_group)
-
-        prompt_group = QGroupBox("AI Prompts")
-        prompt_layout = QVBoxLayout()
-
-        self.ai_rephrase_prompt = QLineEdit()
-        self.ai_rephrase_prompt.setPlaceholderText("Enter AI rephrase prompt...")
-        self.ai_rephrase_prompt.textChanged.connect(self.mark_modified)
-        prompt_layout.addWidget(self.ai_rephrase_prompt)
-
-        self.ai_translation_prompt = QLineEdit()
-        self.ai_translation_prompt.setPlaceholderText("Enter AI translation prompt...")
-        self.ai_translation_prompt.textChanged.connect(self.mark_modified)
-        prompt_layout.addWidget(self.ai_translation_prompt)
-
-        prompt_group.setLayout(prompt_layout)
-        layout.addWidget(prompt_group)
-
-        translation_group = QGroupBox("Translation Settings")
-        translation_layout = QVBoxLayout()
-
-        self.translation_hotkey_input = QKeySequenceEdit()
-        translation_hotkey = self.settings.get_setting('translation_hotkey', 'Alt+4')
-        self.translation_hotkey_input.setKeySequence(QKeySequence(translation_hotkey))
-        self.translation_hotkey_input.editingFinished.connect(self.mark_modified)
-
-        self.language_input = QLineEdit()
-        self.language_input.setPlaceholderText("Enter language (e.g., 'german')")
-        self.language_input.setText(self.settings.get_setting('alternative_language', 'german'))
-        self.language_input.textChanged.connect(self.mark_modified)
-
-        translation_layout.addWidget(QLabel("Translation Hotkey:"))
-        translation_layout.addWidget(self.translation_hotkey_input)
-        translation_layout.addWidget(QLabel("Alternative Language:"))
-        translation_layout.addWidget(self.language_input)
-
-        translation_group.setLayout(translation_layout)
-        layout.addWidget(translation_group)
-
-        hotkey_group = QGroupBox("Hotkeys")
-        hotkey_layout = QVBoxLayout()
-
-        self.rephrase_hotkey_input = QKeySequenceEdit()
-        current_rephrase_hotkey = self.settings.get_setting('rephrase_hotkey', 'Alt+2')
-        self.rephrase_hotkey_input.setKeySequence(QKeySequence(current_rephrase_hotkey))
-        self.rephrase_hotkey_input.editingFinished.connect(self.mark_modified)
-
-        self.switch_phrasings_hotkey_input = QKeySequenceEdit()
-        current_switch_hotkey = self.settings.get_setting('switch_phrasings', 'Alt+3')
-        self.switch_phrasings_hotkey_input.setKeySequence(QKeySequence(current_switch_hotkey))
-        self.switch_phrasings_hotkey_input.editingFinished.connect(self.mark_modified)
-
-        self.fix_hotkey_input = QKeySequenceEdit()
-        current_fix_hotkey = self.settings.get_setting('fix_hotkey', 'Alt+1')
-        self.fix_hotkey_input.setKeySequence(QKeySequence(current_fix_hotkey))
-        self.fix_hotkey_input.editingFinished.connect(self.mark_modified)
-
-        self.custom_prompt_hotkey_input = QKeySequenceEdit()
-        current_prompt_hotkey = self.settings.get_setting('custom_prompt_hotkey', 'Alt+5')
-        self.custom_prompt_hotkey_input.setKeySequence(QKeySequence(current_prompt_hotkey))
-        self.custom_prompt_hotkey_input.editingFinished.connect(self.mark_modified)
-
-        hotkey_layout.addWidget(QLabel("Rephrase Hotkey:"))
-        hotkey_layout.addWidget(self.rephrase_hotkey_input)
-        hotkey_layout.addWidget(QLabel("Switch Phrasings Hotkey:"))
-        hotkey_layout.addWidget(self.switch_phrasings_hotkey_input)
-        hotkey_layout.addWidget(QLabel("Fix Hotkey:"))
-        hotkey_layout.addWidget(self.fix_hotkey_input)
-        hotkey_layout.addWidget(QLabel("Custom Prompt Hotkey:"))
-        hotkey_layout.addWidget(self.custom_prompt_hotkey_input)
-
-        hotkey_group.setLayout(hotkey_layout)
-        layout.addWidget(hotkey_group)
-
+        api_layout = QHBoxLayout()
         self.token = QLineEdit()
-        self.token.setFixedWidth(100)
-        self.token.setPlaceholderText("Enter open router key")
+        self.token.setPlaceholderText("Enter OpenRouter API key")
+        self.token.setEchoMode(QLineEdit.EchoMode.Password)
         self.token.textChanged.connect(self.mark_modified)
 
-        layout.addWidget(self.token)
+        self.show_token_btn = QPushButton("Show")
+        self.show_token_btn.setFixedWidth(60)
+        self.show_token_btn.clicked.connect(self.toggle_token_visibility)
+
+        api_layout.addWidget(QLabel("OpenRouter API Key:"))
+        api_layout.addWidget(self.token)
+        api_layout.addWidget(self.show_token_btn)
+        general_layout.addLayout(api_layout)
+
+        self.auto_select_text = QCheckBox("Auto Select Text")
+        self.auto_select_text.stateChanged.connect(self.mark_modified)
+        general_layout.addWidget(self.auto_select_text)
+
+        general_group.setLayout(general_layout)
+        layout.addWidget(general_group)
+
+        modules_group = QGroupBox("Modules")
+        modules_layout = QVBoxLayout()
+
+        fix_btn = QPushButton("Fix Module Settings")
+        fix_btn.clicked.connect(self.show_fix_settings)
+        modules_layout.addWidget(fix_btn)
+
+        rephrase_btn = QPushButton("Rephrase Module Settings (AI)")
+        rephrase_btn.clicked.connect(self.show_rephrase_settings)
+        modules_layout.addWidget(rephrase_btn)
+
+        translate_btn = QPushButton("Translate Module Settings (AI)")
+        translate_btn.clicked.connect(self.show_translate_settings)
+        modules_layout.addWidget(translate_btn)
+
+        custom_prompt_btn = QPushButton("Custom Prompt Module Settings (AI)")
+        custom_prompt_btn.clicked.connect(self.show_custom_prompt_settings)
+        modules_layout.addWidget(custom_prompt_btn)
+
+        modules_group.setLayout(modules_layout)
+        layout.addWidget(modules_group)
 
         replacements_btn = QPushButton("Manage Replacements")
         replacements_btn.clicked.connect(self.show_replacements)
@@ -260,51 +420,43 @@ class SettingsWindow(QMainWindow):
         layout.addWidget(terminate_btn)
 
         bottom_layout = QHBoxLayout()
-
         copyright_label = QLabel("© MaximDe")
         copyright_label.setStyleSheet("color: gray;")
-
         github_link = QLabel("<a href='https://github.com/max1mde/AutocorrectApp'>GitHub</a>")
         github_link.setStyleSheet("color: blue;")
-        github_link.setOpenExternalLinks(True)  #
+        github_link.setOpenExternalLinks(True)
 
         bottom_layout.addWidget(copyright_label)
         bottom_layout.addStretch()
         bottom_layout.addWidget(github_link)
-
         layout.addLayout(bottom_layout)
 
-        self.setFixedSize(650, 750)
+        self.setFixedSize(300, 400)
         self.load_settings()
 
-    def load_settings(self):
-        self.auto_cap.setChecked(self.settings.get_setting('auto_capitalize', True))
-        self.auto_punct.setChecked(self.settings.get_setting('auto_punctuate', True))
-        self.ai_rephrase.setChecked(self.settings.get_setting('ai_rephrase', True))
-        self.german_noun_capitalization.setChecked(self.settings.get_setting('german_noun_capitalization', True))
-        self.ai_rephrase_prompt.setText(self.settings.get_setting(
-            'ai_rephrase_prompt', 'Provide 3 different concise rephrasing of the text, separated by | characters.'
-        ))
-        self.ai_translation_prompt.setText(self.settings.get_setting(
-            'ai_translation_prompt', 'You are a basic translater. Add punctuation and use correct spelling. '
-                                     'Translate the following text to English if it is in any other language than '
-                                     'English, else translate it to %alternative_language% and ONLY answer with the '
-                                     'translated message:'
-        ))
-        self.token.setText(self.settings.get_setting(
-            'open_router_key', 'none'
-        ))
+    def toggle_token_visibility(self):
+        if self.token.echoMode() == QLineEdit.EchoMode.Password:
+            self.token.setEchoMode(QLineEdit.EchoMode.Normal)
+            self.show_token_btn.setText("Hide")
+        else:
+            self.token.setEchoMode(QLineEdit.EchoMode.Password)
+            self.show_token_btn.setText("Show")
 
-        self.rephrase_hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('rephrase_hotkey', 'Alt+2')))
-        self.switch_phrasings_hotkey_input.setKeySequence(
-            QKeySequence(self.settings.get_setting('switch_phrasings', 'Alt+3')))
-        self.custom_prompt_hotkey_input.setKeySequence(
-            QKeySequence(self.settings.get_setting('custom_prompt_hotkey', 'Alt+5')))
-        self.fix_hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('fix_hotkey', 'Alt+1')))
-        self.translation_hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('translation_hotkey', 'Alt+4')))
-        self.language_input.setText(self.settings.get_setting('alternative_language', 'german'))
+    def show_fix_settings(self):
+        dialog = FixModuleWindow(self.settings, self)
+        dialog.exec()
 
-        self.settings_modified = False
+    def show_rephrase_settings(self):
+        dialog = RephaseModuleWindow(self.settings, self)
+        dialog.exec()
+
+    def show_translate_settings(self):
+        dialog = TranslateModuleWindow(self.settings, self)
+        dialog.exec()
+
+    def show_custom_prompt_settings(self):
+        dialog = CustomPromptModuleWindow(self.settings, self)
+        dialog.exec()
 
     def show_replacements(self):
         replacements = self.settings.get_replacements()
@@ -312,6 +464,16 @@ class SettingsWindow(QMainWindow):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.settings.set_setting('replacements', dialog.replacements)
             self.settings_modified = True
+
+    def load_settings(self):
+        self.token.setText(self.settings.get_setting('open_router_key', ''))
+        self.auto_select_text.setChecked(self.settings.get_setting('auto_select_text', True))
+        self.settings_modified = False
+
+    def save_settings(self):
+        self.settings.set_setting('open_router_key', self.token.text())
+        self.settings.set_setting('auto_select_text', self.auto_select_text.isChecked())
+        self.settings_modified = False
 
     def reset_settings(self):
         dialog = ConfirmationDialog(
@@ -321,23 +483,6 @@ class SettingsWindow(QMainWindow):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.settings.reset_settings()
             self.load_settings()
-
-    def save_settings(self):
-        self.settings.set_setting('auto_capitalize', self.auto_cap.isChecked())
-        self.settings.set_setting('auto_punctuate', self.auto_punct.isChecked())
-        self.settings.set_setting('ai_rephrase', self.ai_rephrase.isChecked())
-        self.settings.set_setting('german_noun_capitalization', self.german_noun_capitalization.isChecked())
-        self.settings.set_setting('ai_rephrase_prompt', self.ai_rephrase_prompt.text())
-        self.settings.set_setting('ai_translation_prompt', self.ai_translation_prompt.text())
-        self.settings.set_setting('open_router_key', self.token.text())
-        self.settings.set_setting('rephrase_hotkey', self.rephrase_hotkey_input.keySequence().toString())
-        self.settings.set_setting('switch_phrasings', self.switch_phrasings_hotkey_input.keySequence().toString())
-        self.settings.set_setting('custom_prompt_hotkey',
-                                  self.custom_prompt_hotkey_input.keySequence().toString())
-        self.settings.set_setting('fix_hotkey', self.fix_hotkey_input.keySequence().toString())
-        self.settings.set_setting('translation_hotkey', self.translation_hotkey_input.keySequence().toString())
-        self.settings.set_setting('alternative_language', self.language_input.text())
-        self.settings_modified = False
 
     def terminate_application(self):
         if self.settings_modified:
