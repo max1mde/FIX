@@ -108,9 +108,9 @@ class CustomPromptDialog(QDialog):
                 "Fix code": "Fix any mistakes (syntax or logic) in this code",
                 "Improve code": "Improve the code in the in terms of readability, performance & conventions. Do not "
                                 "include ```'s in the answer just the modified raw code. Also don't ",
-                "Add Emojis": "Add (gen z) fitting emojis like 🫥💀😭👌🫵😂🏢✈️🧨😏🥶💦💅🗣️ to the text (they should "
-                              "NOT be random and fit to th text). Correct spelling, grammar, punctuation, and capitalization.",
-                "Add Emojis (old people)": "Add to the text some (boomer) emojis (they should NOT be randomly choosen "
+                "Add Emojis": "Add (gen z) fitting emojis like 💀😭👌🫵😂🏢✈️🧨😏🥶💦💅🗣️ to the text (they should "
+                              "NOT be random and fit to th text). Correct spelling, grammar, punctuation, and capitalization. (Use max 1 emoji in a row)",
+                "Add many Emojis (old people)": "Add to the text some (boomer) emojis (they should NOT be randomly choosen "
                                            "and fit into to the text) here is a good list from often used emojis:"
                                            "😊😇🤣🤗☘️🙈👼😀🤩🫢🙏👍😎😍🙃😻😹. Sometimes just add an emoji after "
                                            "some activity mentioned or thing like for example after: we went to the "
@@ -241,14 +241,12 @@ class AutocorrectService:
             logging.error(f"Error replacing text: {e}")
 
     def handle_rephrase_hotkey(self):
-        if not self.enabled or not self.settings.get_setting('ai_rephrase'):
-            return
 
         selected_text = self.get_selected_text()
         if not selected_text:
             return
 
-        prompt = self.settings.get_setting('ai_rephrase_prompt') + selected_text
+        prompt = self.settings.get_setting('rephrase.prompt') + selected_text
 
         response = requests.post(
             url="https://openrouter.ai/api/v1/chat/completions",
@@ -288,14 +286,14 @@ class AutocorrectService:
         for old, new in self.settings.get_setting('replacements').items():
             selected_text = re.sub(rf'\b{re.escape(old)}\b', new, selected_text)
 
-        if self.settings.get_setting('german_noun_capitalization'):
+        if self.settings.get_setting('fix.german_noun_capitalization'):
             words = selected_text.split()
             selected_text = ' '.join([self.noun_capitalization(w) for w in words])
 
-        if self.settings.get_setting('auto_punctuate'):
+        if self.settings.get_setting('fix.punctuate'):
             selected_text = self.auto_punctuate(selected_text)
 
-        if self.settings.get_setting('auto_capitalize'):
+        if self.settings.get_setting('fix.capitalization'):
             selected_text = selected_text[:1].upper() + selected_text[1:]
 
         self.replace_selected_text(selected_text)
@@ -389,9 +387,9 @@ class AutocorrectService:
                 "messages": [
                     {
                         "role": "user",
-                        "content": self.settings.get_setting('ai_translation_prompt').replace("%alternative_language%",
+                        "content": self.settings.get_setting('translate.prompt').replace("%alternative_language%",
                                                                                               self.settings.get_setting(
-                                                                                                  'alternative_language')) + selected_text
+                                                                                                  'translate.alternative_language')) + selected_text
                     }
                 ]
 
@@ -432,11 +430,11 @@ class AutocorrectService:
 
     def setup_hotkeys(self):
         try:
-            keyboard.add_hotkey(self.settings.get_setting('fix_hotkey'), self.fix_text)
-            keyboard.add_hotkey(self.settings.get_setting('rephrase_hotkey'), self.handle_rephrase_hotkey)
-            keyboard.add_hotkey(self.settings.get_setting('switch_phrasings'), self.switch_phrasings)
-            keyboard.add_hotkey(self.settings.get_setting('translation_hotkey'), self.handle_translation_hotkey)
-            keyboard.add_hotkey(self.settings.get_setting('custom_prompt_hotkey'), self.handle_custom_prompt_hotkey)
+            keyboard.add_hotkey(self.settings.get_setting('fix.hotkey'), self.fix_text)
+            keyboard.add_hotkey(self.settings.get_setting('rephrase.hotkey'), self.handle_rephrase_hotkey)
+            keyboard.add_hotkey(self.settings.get_setting('rephrase.switch_phrasings_hotkey'), self.switch_phrasings)
+            keyboard.add_hotkey(self.settings.get_setting('translate.hotkey'), self.handle_translation_hotkey)
+            keyboard.add_hotkey(self.settings.get_setting('custom_prompt.hotkey'), self.handle_custom_prompt_hotkey)
             logging.info("Hotkeys successfully set up")
         except Exception as e:
             logging.error(f"Error setting up hotkeys: {e}")
