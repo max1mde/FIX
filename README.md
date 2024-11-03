@@ -1,9 +1,6 @@
 <div align="center">
-  <h1>Autocorrect</h1>
+  <img src="https://github.com/user-attachments/assets/76b36636-3553-4b34-aeee-625a75951db9">
 </div>
-
-![New Project - 2024-11-03T000755 649](https://github.com/user-attachments/assets/791142ed-fb65-4b33-b9df-5d44495e0192)
-
 
 A Python-based autocorrect tool that enhances text input across Windows applications with:
 - Automatic capitalization & punctuation
