@@ -7,6 +7,10 @@ A Python-based autocorrect tool that enhances text input across Windows applicat
 - AI-powered rephrasing with customizable hotkey
 - System tray integration (Runs in background when closing)
 
+## Custom prompt popup:
+<img src="https://github.com/user-attachments/assets/ad04b2b9-d6d7-457a-b162-aea6a884922b" width=700>
+
+
 ## Requirements
 - Python 3.10+
 - Windows 10/11
