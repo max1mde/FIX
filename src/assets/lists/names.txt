@@ -714,7 +714,6 @@ Ensar
 Enya
 Enzo
 Epic Games
-Equatorial Guinea
 Erbil
 Eren
 Eric
@@ -725,14 +724,12 @@ Eritrea
 Erkan
 Ermolaev
 Erna
-Ernst & Young
 Erwin
 Esfahan
 Esila
 Eslem
 Esma
 Esra
-Estación Central
 Esther
 Estland
 Estonia
@@ -767,7 +764,6 @@ Falklandinseln
 Falko
 Farfetch
 Faroe Islands
-Fashion Nova
 Fatima
 Fatma
 Fedor
@@ -828,10 +824,7 @@ Französisch-Polynesien
 Frauke
 Fred
 Frederik
-Free People
 Freetown
-French Guiana
-French Polynesia
 FreshBooks
 Freshly
 Freya
@@ -861,8 +854,6 @@ Gavin
 Gavrilov
 Gebhardt
 Geiger
-General Dynamics
-General Motors
 Genesis
 Geneva
 Genoa
@@ -892,7 +883,6 @@ Gleb
 Gloria
 GoDaddy
 Gojek
-Goldman Sachs
 Golovin
 Google
 Gordon
@@ -903,7 +893,6 @@ Grab
 Grace
 Graf
 Grailed
-Grand Rapids
 Graz
 Greece
 Greenland
@@ -918,7 +907,6 @@ Grubhub
 Grönland
 Guadeloupe
 Guatemala
-Guatemala City
 Guayaquil
 Gucci
 Gudrun
@@ -1007,16 +995,11 @@ Hohhot
 Holger
 Hollister
 Holly
-Home Depot
 Honda
 Honduras
 Honeywell
 Hong Kong
 Hongkong
-Hope
-Horn
-Horst
-Hot Topic
 Houston
 HP
 HSBC
@@ -1054,7 +1037,6 @@ Ilyin
 Iman
 Imani
 Imke
-Imperial Brands
 Imran
 Ina
 Inaya
@@ -1093,7 +1075,6 @@ Isabella
 Isabelle
 Isaiah
 Island
-Isle of Man
 Ismail
 Israel
 Issa
@@ -1179,7 +1160,6 @@ Johanne
 Johannes
 Johannesburg
 John
-Johnson & Johnson
 Joleen
 Jolie
 Jolina
@@ -1207,7 +1187,6 @@ Joshua
 Josie
 Josua
 José
-JPMorgan Chase
 Juan
 Judith
 Jule
@@ -1221,7 +1200,6 @@ Juna
 Jung
 Junis
 Juri
-Just Eat
 Justin
 Justus
 Jutta
@@ -1244,12 +1222,10 @@ Kamerun
 Kanada
 Kanchanaburi
 Kanpur
-Kap Verde
 Karachi
 Karam
 Karan
 Karen
-Karibische Niederlande
 Karim
 Karin
 Karl
@@ -1329,14 +1305,13 @@ Kolosov
 Kolumbien
 Komoren
 Konami
-Kongo, Demokratische Republik
-Kongo, Republik
 Konovalov
 Konrad
 Konstantin
 Korbinian
-Korea, North
-Korea, South
+Korea
+North Korea
+South Korea
 Korolev
 Kosovo
 Kozlov
@@ -1441,7 +1416,6 @@ Letizia
 Lettland
 Lev
 Levi
-Levi Strauss & Co.
 Levi's
 Levin
 Levio
@@ -1458,8 +1432,6 @@ Liara
 Lias
 Libanon
 Liberia
-Libertador General Bernardo O'Higgins Region
-Libertador General Bernardo O'Higgins-Region
 Libya
 Libyen
 Lidiya
@@ -1492,7 +1464,6 @@ Lisbeth
 Lisbon
 Litauen
 Lithuania
-Little Rock
 Litvinov
 Liv
 Liva
@@ -1501,7 +1472,6 @@ Liya
 Liyana
 Liz
 Ljubljana
-Lockheed Martin
 Logan
 Loginov
 Loki
@@ -1516,8 +1486,7 @@ Loretta
 Lorik
 Loris
 Los Angeles
-Los Lagos Region
-Los Lagos-Region
+Los Lagos
 Lotta
 Lotte
 Lou
@@ -1565,8 +1534,6 @@ Madlen
 Madrid
 Madurai
 Mael
-Magallanes Region
-Magallanes-Region
 Magdalena
 Magnus
 Mahdi
@@ -1771,7 +1738,6 @@ Mirko
 Miro
 Miron
 Mironov
-Mitsubishi Electric
 Moderna
 Mohammed
 Mohr
@@ -1840,6 +1806,7 @@ Nazarov
 Nea
 Nefes
 Neiman Marcus
+Montana Black
 Nela
 Nele
 Nelia
@@ -2103,15 +2070,12 @@ Razin
 Rebag
 Rebecca
 Recife
-Red Hat
-Red Wing Shoes
 Reebok
 Reformation
 Regina
 Rejan
 Renate
 Renca
-Rent the Runway
 René
 Reuter
 Reykjavik

@@ -211,13 +211,16 @@ class AutocorrectService:
 
     def get_selected_text(self):
         try:
-            controller.release(Key.alt)
             pyperclip.copy('')
             time.sleep(0.1)
+            if self.settings.get_setting('auto_select_text'):
+                with controller.pressed(Key.ctrl.value):
+                    controller.press('a')
+                    controller.release('a')
+                time.sleep(0.1)
             with controller.pressed(Key.ctrl.value):
                 controller.press('c')
                 controller.release('c')
-            controller.press(Key.alt)
             time.sleep(0.4)
             selected_text = pyperclip.paste()
             logging.info(f"Selected text: {selected_text}")
@@ -230,8 +233,12 @@ class AutocorrectService:
         try:
             pyperclip.copy(new_text)
 
-            controller.release(Key.alt)
             time.sleep(0.1)
+            if self.settings.get_setting('auto_select_text'):
+                with controller.pressed(Key.ctrl.value):
+                    controller.press('a')
+                    controller.release('a')
+                time.sleep(0.1)
             with controller.pressed(Key.ctrl.value):
                 controller.press('v')
                 controller.release('v')
@@ -245,6 +252,10 @@ class AutocorrectService:
         selected_text = self.get_selected_text()
         if not selected_text:
             return
+
+        if self.settings.get_setting('fix.use_replacements'):
+            for old, new in self.settings.get_setting('replacements').items():
+                selected_text = re.sub(rf'\b{re.escape(old)}\b', new, selected_text)
 
         prompt = self.settings.get_setting('rephrase.prompt') + selected_text
 
@@ -283,12 +294,17 @@ class AutocorrectService:
         if not selected_text or selected_text.strip() == "":
             return
 
-        for old, new in self.settings.get_setting('replacements').items():
-            selected_text = re.sub(rf'\b{re.escape(old)}\b', new, selected_text)
+        if self.settings.get_setting('fix.use_replacements'):
+            for old, new in self.settings.get_setting('replacements').items():
+                selected_text = re.sub(rf'\b{re.escape(old)}\b', new, selected_text)
 
         if self.settings.get_setting('fix.german_noun_capitalization'):
             words = selected_text.split()
             selected_text = ' '.join([self.noun_capitalization(w) for w in words])
+
+        if self.settings.get_setting('fix.name_capitalization'):
+                words = selected_text.split()
+                selected_text = ' '.join([self.name_capitalization(w) for w in words])
 
         if self.settings.get_setting('fix.punctuate'):
             selected_text = self.auto_punctuate(selected_text)
@@ -299,7 +315,6 @@ class AutocorrectService:
         self.replace_selected_text(selected_text)
 
     def get_custom_prompt(self, selected_text):
-        controller.release(Key.alt)
         show_suggestions = selected_text is not None and selected_text.strip() != ""
         dialog = CustomPromptDialog(last_prompt=self.last_prompt, show_suggestions=show_suggestions)
 
@@ -363,11 +378,13 @@ class AutocorrectService:
     def handle_custom_prompt_hotkey(self):
         if not self.enabled:
             return
-        controller.release(Key.alt)
         time.sleep(0.1)
         selected_text = self.get_selected_text()
         if not selected_text:
             selected_text = ""
+        if self.settings.get_setting('fix.use_replacements'):
+            for old, new in self.settings.get_setting('replacements').items():
+                selected_text = re.sub(rf'\b{re.escape(old)}\b', new, selected_text)
         self.worker.handle_custom_prompt(selected_text)
 
     def handle_translation_hotkey(self):
@@ -377,6 +394,11 @@ class AutocorrectService:
         selected_text = self.get_selected_text()
         if not selected_text or selected_text.strip() == "":
             return
+
+        if self.settings.get_setting('fix.use_replacements'):
+            for old, new in self.settings.get_setting('replacements').items():
+                selected_text = re.sub(rf'\b{re.escape(old)}\b', new, selected_text)
+
         response = requests.post(
             url="https://openrouter.ai/api/v1/chat/completions",
             headers={
@@ -406,13 +428,23 @@ class AutocorrectService:
     def noun_capitalization(self, word):
         return word.capitalize() if self.is_german_noun(word) else word
 
+    def name_capitalization(self, word):
+        return word.capitalize() if self.is_name(word) else word
+
     def auto_punctuate(self, text):
         if text.strip() and text.strip()[-1] not in '.!?':
             return text.rstrip() + '.'
         return text
 
     def is_german_noun(self, word):
-        return False
+        with open('./assets/lists/german_nouns.txt', 'r', encoding='utf-8') as file:
+            german_nouns = file.read().splitlines()
+        return word.lower() in (noun.lower() for noun in german_nouns)
+
+    def is_name(self, word):
+        with open('./assets/lists/names.txt', 'r', encoding='utf-8') as file:
+            german_nouns = file.read().splitlines()
+        return word.lower() in (noun.lower() for noun in german_nouns)
 
     def is_proper_name(self, word):
         # TODO

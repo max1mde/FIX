@@ -36,22 +36,22 @@ class SettingsManager:
             'fix.capitalization': True,
             'fix.punctuate': False,
             'fix.german_noun_capitalization': True,
+            'fix.name_capitalization': True,
             'fix.use_replacements': True,
             'fix.hotkey': 'Ctrl+F8',
             'fix.auto_fix_on_send': True,
             'rephrase.hotkey': 'Ctrl+F9',
             'rephrase.switch_phrasings_hotkey': 'Ctrl+F10',
             'rephrase.use_replacements': True,
-            'rephrase.prompt': 'You are a helpful writing assistant. Provide 3 different concise rephrasing of '
-                             'the given text, separated by | characters. Please provide 3 alternative '
-                             'phrasings for the following text (The first one just spelling and punctuation '
-                             'fixes no different words, only the next phrases should contain alternative words) '
-                             '(if the text is longer than 20 words only one alternative phrasing):',
+            'rephrase.prompt': 'Provide 3 different concise rephrasing of '
+                             'the given text, separated by | characters. '
+                             'The first rephrasing should not be rephrased just correct all spelling, capitalization, grammar, and punctuation errors without changing wording.'
+                             '(If the text is longer than 30 words, only fix the text. Also keep the same language in all rephrasings). Here is the text:',
 
             'translate.hotkey': 'Ctrl+F11',
             'translate.use_replacements': True,
             'translate.alternative_language': 'german',
-            'translate.prompt': 'You are a basic translater. Add punctuation and use correct spelling. '
+            'translate.prompt': 'You are a basic translater. (also additionally add punctuation and use correct spelling.) '
                               'Translate the following text to English if it is in any other language than '
                               'English, else translate it to %alternative_language% and ONLY answer with the '
                               'translated message:',
@@ -59,7 +59,7 @@ class SettingsManager:
             'custom_prompt.hotkey': 'Ctrl+F12',
             'custom_prompt.use_replacements': True,
             'custom_prompt.auto_custom_prompt': True,
-            'custom_prompt.auto_select_text': True,
+            'auto_select_text': False,
             'open_router_key': '',
             'replacements': {
                 'i': 'I',
@@ -171,11 +171,10 @@ class SettingsManager:
                 "woulda": "would have",
                 "shoulda": "should have",
                 "d'you": "do you",
-                "ain't": "is not",
+                "aint": "ain't",
                 "y'all": "you all",
                 "y'gotta": "you have got to",
                 "tryna": "trying to",
-                "em": "them",
                 "let's": "let us",
                 "here's": "here is",
                 "that's": "that is",
@@ -317,7 +316,9 @@ class SettingsManager:
                 "yessir": "yes sir",
                 "yes'm": "yes madam",
                 "cause": "because",
-                "yk": "you know"
+                "yk": "you know",
+                "ki": "KI",
+                "ai": "AI"
             }
         }
         self.save_settings()

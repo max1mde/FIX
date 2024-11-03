@@ -48,14 +48,14 @@ class FixModuleWindow(QDialog):
         self.capitalization = QCheckBox("Capitalization")
         self.punctuate = QCheckBox("Punctuation")
         self.german_noun_capitalization = QCheckBox("German Noun Capitalization")
+        self.name_capitalization = QCheckBox("Name Capitalization")
         self.use_replacements = QCheckBox("Use Replacements")
-        self.auto_fix_on_send = QCheckBox("Auto Fix on Send")
 
         self.hotkey_input = QKeySequenceEdit()
         hotkey_label = QLabel("Fix Hotkey:")
 
-        for widget in [self.capitalization, self.punctuate, self.german_noun_capitalization,
-                       self.use_replacements, self.auto_fix_on_send]:
+        for widget in [self.capitalization, self.punctuate, self.german_noun_capitalization, self.name_capitalization,
+                       self.use_replacements]:
             widget.stateChanged.connect(self.mark_modified)
             layout.addWidget(widget)
 
@@ -70,16 +70,16 @@ class FixModuleWindow(QDialog):
         self.capitalization.setChecked(self.settings.get_setting('fix.capitalization', True))
         self.punctuate.setChecked(self.settings.get_setting('fix.punctuate', True))
         self.german_noun_capitalization.setChecked(self.settings.get_setting('fix.german_noun_capitalization', True))
+        self.name_capitalization.setChecked(self.settings.get_setting('fix.name_capitalization', True))
         self.use_replacements.setChecked(self.settings.get_setting('fix.use_replacements', True))
-        self.auto_fix_on_send.setChecked(self.settings.get_setting('fix.auto_fix_on_send', True))
         self.hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('fix.hotkey', 'Ctrl+F8')))
 
     def save_settings(self):
         self.settings.set_setting('fix.capitalization', self.capitalization.isChecked())
         self.settings.set_setting('fix.punctuate', self.punctuate.isChecked())
         self.settings.set_setting('fix.german_noun_capitalization', self.german_noun_capitalization.isChecked())
+        self.settings.set_setting('fix.name_capitalization', self.name_capitalization.isChecked())
         self.settings.set_setting('fix.use_replacements', self.use_replacements.isChecked())
-        self.settings.set_setting('fix.auto_fix_on_send', self.auto_fix_on_send.isChecked())
         self.settings.set_setting('fix.hotkey', self.hotkey_input.keySequence().toString())
         self.settings_modified = False
         self.close()
@@ -216,7 +216,7 @@ class CustomPromptModuleWindow(QDialog):
         layout = QVBoxLayout(self)
 
         self.use_replacements = QCheckBox("Use Replacements")
-        self.auto_custom_prompt = QCheckBox("Auto Custom Prompt")
+        self.auto_custom_prompt = QCheckBox("Auto Prompt When Typing")
 
         for widget in [self.use_replacements, self.auto_custom_prompt]:
             widget.stateChanged.connect(self.mark_modified)
