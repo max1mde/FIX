@@ -24,7 +24,7 @@
 - **Fix Text (Ctrl+F8)**: Automatically corrects capitalization, punctuation, and common typos
 - **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions
 - **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options
-- **Translate (Ctrl+F11)**: Automatic translation between English and German
+- **Translate (Ctrl+F11)**: Automatic translation between English and German (Or any other languages)
 - **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations
 
 ## Installation
