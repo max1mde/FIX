@@ -220,6 +220,10 @@ class AutocorrectService:
     def __init__(self, settings_manager):
         try:
             self.tokenizer = tiktoken.encoding_for_model("gpt-4o")
+        except Exception as e:
+            self.tokenizer = tiktoken.get_encoding("cl100k_base")
+            logger.error(f"Error initializing Tiktoken tokenizer: {str(e)}")
+        try:
             self.settings = settings_manager
             self.enabled = True
             self.phrase_index = 0
@@ -235,7 +239,10 @@ class AutocorrectService:
             logger.error(f"Error initializing AutocorrectService: {str(e)}")
 
     def count_tokens(self, text: str) -> int:
-        return len(self.tokenizer.encode(text))
+        if self.tokenizer:
+            return len(self.tokenizer.encode(text))
+        else:
+            return 0
 
     def make_api_request(self, prompt, retry_count=3):
         for attempt in range(retry_count):
@@ -513,8 +520,9 @@ class AutocorrectService:
 
     def cleanup(self):
         try:
-            self.worker_thread.quit()
-            self.worker_thread.wait()
+            if self.worker_thread:
+                self.worker_thread.quit()
+                self.worker_thread.wait()
         except Exception as e:
             logger.error(f"Error in cleanup: {str(e)}")
 
