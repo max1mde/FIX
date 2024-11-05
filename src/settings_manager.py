@@ -436,10 +436,11 @@ class SettingsManager:
 
     def reset_settings(self) -> None:
         usage_stats = self.settings.get('usage_stats', self.DEFAULT_SETTINGS['usage_stats']).copy()
+        open_router_key = self.settings.get('open_router_key', self.DEFAULT_SETTINGS['open_router_key'])
 
         self.settings = self.DEFAULT_SETTINGS.copy()
         self.settings['usage_stats'] = usage_stats
-
+        self.settings['open_router_key'] = open_router_key
         self.save_settings()
 
     def update_usage(self, input_tokens: int, completion_tokens: int) -> None:

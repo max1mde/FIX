@@ -450,7 +450,7 @@ class SettingsWindow(QMainWindow):
         bottom_layout.addWidget(github_link)
         layout.addLayout(bottom_layout)
 
-        self.setFixedSize(300, 550)
+        self.setFixedSize(340, 580)
         self.load_settings()
 
         self.update_usage_display()
