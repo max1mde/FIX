@@ -216,7 +216,6 @@ class CustomPromptDialog(QDialog):
 
 
 class AutocorrectService:
-    usage_updated = pyqtSignal()
 
     def __init__(self, settings_manager):
         try:

@@ -345,7 +345,7 @@ class SettingsWindow(QMainWindow):
         super().__init__()
         self.settings = settings_manager
         self.setup_ui()
-        self.setWindowTitle("Autocorrect Settings")
+        self.setWindowTitle("FIX - Autocorrect")
         self.setWindowIcon(QIcon("assets/icon.ico"))
         self.settings_modified = False
     def setup_ui(self):
