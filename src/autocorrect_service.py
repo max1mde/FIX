@@ -230,6 +230,7 @@ class AutocorrectService:
             self.worker.moveToThread(self.worker_thread)
             self.worker.show_dialog.connect(self.get_custom_prompt)
             self.worker_thread.start()
+            self.setup_hotkeys()
         except Exception as e:
             logger.error(f"Error initializing AutocorrectService: {str(e)}")
 

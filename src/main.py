@@ -28,7 +28,6 @@ class AutocorrectApp:
             self.settings = SettingsManager()
             self.service = AutocorrectService(self.settings)
             self.settings_window = SettingsWindow(self.settings)
-            self.service.setup_hotkeys()
             self._setup_tray()
         except Exception as e:
             self._show_error_and_exit(f"Failed to initialize application: {str(e)}")
