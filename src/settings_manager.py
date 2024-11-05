@@ -21,6 +21,11 @@ class SettingsManager:
             'The first rephrasing should not be rephrased just correct all spelling, capitalization, grammar, and punctuation errors without changing wording.'
             '(If the text is longer than 30 words, only fix the text. Also keep the same language in all rephrasings). Here is the text:'
         ),
+        'usage_stats': {
+            'input_tokens': 0,
+            'completion_tokens': 0,
+            'total_cost': 0.0
+        },
         'translate.hotkey': 'Ctrl+F11',
         'translate.use_replacements': True,
         'translate.alternative_language': 'german',
@@ -292,7 +297,102 @@ class SettingsManager:
             "cause": "because",
             "yk": "you know",
             "ki": "KI",
-            "ai": "AI"
+            "ai": "AI",
+            "machts": "macht's",
+            "tuts": "tut's",
+            "kommts": "kommt's",
+            "bleibts": "bleibt's",
+            "brauchts": "braucht's",
+            "hasts": "hast's",
+            "gibts": "gibt's",
+            "weiss": "weiß",
+            "hats": "hat's",
+            "gehts": "geht's",
+            "bringts": "bringt's",
+            "hols": "hol's",
+            "nims": "nimm's",
+            "gebts": "gebt's",
+            "sags": "sag's",
+            "finds": "find's",
+            "hörts": "hört's",
+            "wars": "war's",
+            "isses": "ist es",
+            "schauts": "schaut's",
+            "kostets": "kostet's",
+            "zähls": "zähl's",
+            "wirds": "wird's",
+            "verstehsts": "verstehst's",
+            "siehs": "sieh's",
+            "meins": "mein's",
+            "kennts": "kennt's",
+            "triffs": "triff's",
+            "solls": "soll's",
+            "werds": "werd's",
+            "frags": "frag's",
+            "öffnets": "öffnet's",
+            "klappts": "klappt's",
+            "habs": "hab's",
+            "zeigs": "zeig's",
+            "wissens": "wissen's",
+            "singts": "singt's",
+            "bleibs": "bleib's",
+            "packts": "packt's",
+            "stellsts": "stellst's",
+            "lasss": "lass's",
+            "nimmts": "nimmt's",
+            "tuers": "tuer's",
+            "vergisss": "vergiss's",
+            "reichts": "reicht's",
+            "setzts": "setzt's",
+            "bringes": "bringe es",
+            "fällts": "fällt's",
+            "wollns": "wollen's",
+            "gehtens": "gehen es",
+            "gebens": "geben's",
+            "hättes": "hätte es",
+            "möchts": "möcht's",
+            "bittest": "bittes",
+            "erklärs": "erklär's",
+            "lassens": "lassen's",
+            "packes": "pack es",
+            "teils": "teil's",
+            "sehns": "sehen's",
+            "wills": "will's",
+            "singst": "sing's",
+            "rufsts": "rufst's",
+            "dürfens": "dürfen's",
+            "machs": "mach's",
+            "stehsts": "stehst's",
+            "redts": "redt's",
+            "stellts": "stellt's",
+            "rennens": "rennen's",
+            "lachtst": "lacht's",
+            "rufes": "rufe es",
+            "seins": "sein's",
+            "wirsts": "wirst's",
+            "suchens": "suchen's",
+            "ziehns": "ziehen's",
+            "neigs": "neig's",
+            "bittes": "bitte es",
+            "stehns": "stehen's",
+            "lesens": "lesen's",
+            "wähles": "wähle es",
+            "kostest": "kostes",
+            "kriegst": "krieg's",
+            "laufsts": "laufst's",
+            "schreis": "schrei's",
+            "räumts": "räumt's",
+            "brennst": "brennt's",
+            "fährts": "fährt's",
+            "könnts": "könnt's",
+            "springst": "spring's",
+            "sagsts": "sagst's",
+            "spürts": "spürt's",
+            "probierst": "probier's",
+            "schläfst": "schläf's",
+            "siehns": "sehen's",
+            "fragts": "fragt's",
+            "fühls": "fühl's"
         }
     }
 
@@ -335,5 +435,29 @@ class SettingsManager:
         return self.settings.get('replacements', {})
 
     def reset_settings(self) -> None:
+        usage_stats = self.settings.get('usage_stats', self.DEFAULT_SETTINGS['usage_stats']).copy()
+
         self.settings = self.DEFAULT_SETTINGS.copy()
+        self.settings['usage_stats'] = usage_stats
+
         self.save_settings()
+
+    def update_usage(self, input_tokens: int, completion_tokens: int) -> None:
+        current_input = self.settings.get('usage_stats', {}).get('input_tokens', 0)
+        current_completion = self.settings.get('usage_stats', {}).get('completion_tokens', 0)
+
+        new_input = current_input + input_tokens
+        new_completion = current_completion + completion_tokens
+
+        # $0.15 per million input tokens
+        # $0.60 per million completion tokens
+        input_cost = (new_input / 1_000_000) * 0.15
+        completion_cost = (new_completion / 1_000_000) * 0.60
+        total_cost = input_cost + completion_cost
+        self.settings['usage_stats'] = {
+            'input_tokens': new_input,
+            'completion_tokens': new_completion,
+            'total_cost': total_cost
+        }
+        self.save_settings()
+

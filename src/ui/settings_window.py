@@ -348,7 +348,6 @@ class SettingsWindow(QMainWindow):
         self.setWindowTitle("Autocorrect Settings")
         self.setWindowIcon(QIcon("assets/icon.ico"))
         self.settings_modified = False
-
     def setup_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -356,6 +355,23 @@ class SettingsWindow(QMainWindow):
 
         general_group = QGroupBox("General")
         general_layout = QVBoxLayout()
+
+        usage_group = QGroupBox("API Usage Statistics")
+        usage_layout = QVBoxLayout()
+
+        self.input_tokens_label = QLabel()
+        self.completion_tokens_label = QLabel()
+        self.total_tokens_label = QLabel()
+        self.cost_label = QLabel()
+
+        usage_layout.addWidget(self.input_tokens_label)
+        usage_layout.addWidget(self.completion_tokens_label)
+        usage_layout.addWidget(self.total_tokens_label)
+        usage_layout.addWidget(self.cost_label)
+
+        reset_stats_btn = QPushButton("Reset Statistics")
+        reset_stats_btn.clicked.connect(self.reset_usage_stats)
+        usage_layout.addWidget(reset_stats_btn)
 
         api_layout = QHBoxLayout()
         self.token = QLineEdit()
@@ -366,6 +382,9 @@ class SettingsWindow(QMainWindow):
         self.show_token_btn = QPushButton("Show")
         self.show_token_btn.setFixedWidth(60)
         self.show_token_btn.clicked.connect(self.toggle_token_visibility)
+
+        usage_group.setLayout(usage_layout)
+        general_layout.addWidget(usage_group)
 
         api_layout.addWidget(QLabel("OpenRouter API Key:"))
         api_layout.addWidget(self.token)
@@ -431,8 +450,51 @@ class SettingsWindow(QMainWindow):
         bottom_layout.addWidget(github_link)
         layout.addLayout(bottom_layout)
 
-        self.setFixedSize(300, 400)
+        self.setFixedSize(300, 550)
         self.load_settings()
+
+        self.update_usage_display()
+
+    def reset_usage_stats(self):
+        dialog = ConfirmationDialog(
+            'Are you sure you want to reset usage statistics?', self
+        )
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.settings.settings['usage_stats'] = {
+                'input_tokens': 0,
+                'completion_tokens': 0,
+                'total_cost': 0.0
+            }
+            self.settings.save_settings()
+            self.update_usage_display()
+
+    def update_usage_display(self):
+        usage_stats = self.settings.get_setting('usage_stats', {
+            'input_tokens': 0,
+            'completion_tokens': 0,
+            'total_cost': 0.0
+        })
+
+        input_tokens = usage_stats['input_tokens']
+        completion_tokens = usage_stats['completion_tokens']
+        total_tokens = input_tokens + completion_tokens
+
+        self.input_tokens_label.setText(
+            f"Input Tokens: {input_tokens:,} (${(input_tokens / 1_000_000) * 0.15:.4f})"
+        )
+        self.completion_tokens_label.setText(
+            f"Completion Tokens: {completion_tokens:,} (${(completion_tokens / 1_000_000) * 0.60:.4f})"
+        )
+        self.total_tokens_label.setText(
+            f"Total Tokens: {total_tokens:,}"
+        )
+        self.cost_label.setText(
+            f"Total Cost: ${usage_stats['total_cost']:.4f}"
+        )
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.update_usage_display()
 
     def toggle_token_visibility(self):
         if self.token.echoMode() == QLineEdit.EchoMode.Password:

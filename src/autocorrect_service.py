@@ -9,6 +9,7 @@ import re
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication
+import tiktoken
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -215,8 +216,11 @@ class CustomPromptDialog(QDialog):
 
 
 class AutocorrectService:
+    usage_updated = pyqtSignal()
+
     def __init__(self, settings_manager):
         try:
+            self.tokenizer = tiktoken.encoding_for_model("gpt-4o")
             self.settings = settings_manager
             self.enabled = True
             self.phrase_index = 0
@@ -230,9 +234,13 @@ class AutocorrectService:
         except Exception as e:
             logger.error(f"Error initializing AutocorrectService: {str(e)}")
 
+    def count_tokens(self, text: str) -> int:
+        return len(self.tokenizer.encode(text))
+
     def make_api_request(self, prompt, retry_count=3):
         for attempt in range(retry_count):
             try:
+                input_tokens = self.count_tokens(prompt)
                 response = requests.post(
                     url="https://openrouter.ai/api/v1/chat/completions",
                     headers={
@@ -245,7 +253,18 @@ class AutocorrectService:
                     timeout=10
                 )
                 response.raise_for_status()
-                return response.json()
+
+                response_data = response.json()
+
+                response.raise_for_status()
+
+                completion_text = response_data['choices'][0]['message']['content']
+                completion_tokens = self.count_tokens(completion_text)
+
+                self.settings.update_usage(input_tokens, completion_tokens)
+
+
+                return response_data
             except requests.exceptions.RequestException as e:
                 logger.error(f"API request attempt {attempt + 1} failed: {str(e)}")
                 if attempt == retry_count - 1:
