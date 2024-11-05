@@ -1,4 +1,3 @@
-import tiktoken
 from pynput.keyboard import Key, Controller
 import time
 import requests
@@ -7,6 +6,7 @@ import pyperclip
 import logging
 import keyboard
 import re
+import tiktoken
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication
@@ -221,7 +221,6 @@ class AutocorrectService:
         try:
             self.tokenizer = tiktoken.encoding_for_model("gpt-4o")
         except Exception as e:
-            self.tokenizer = tiktoken.get_encoding("cl100k_base")
             logger.error(f"Error initializing Tiktoken tokenizer: {str(e)}")
         try:
             self.settings = settings_manager
