@@ -36,7 +36,7 @@
 ### Option 2: Build from Source
 1. Clone the repository:
 ```bash
-git clone https://github.com/max1mde/AutocorrectApp.git
+git clone https://github.com/max1mde/FIX.git
 ```
 
 2. Create a virtual environment:
