@@ -30,9 +30,8 @@
 ## Installation
 
 ### Option 1: Download Release
-1. Download the latest release from [Releases](https://github.com/max1mde/AutocorrectApp/releases/tag/1.0.0)
-2. Extract the ZIP file
-3. Run `AutocorrectApp.exe`
+1. Download `Autocorrect.exe` from the [latest release](https://github.com/max1mde/FIX/releases/latest)
+2. Run `Autocorrect.exe`
 
 ### Option 2: Build from Source
 1. Clone the repository:
