@@ -43,7 +43,8 @@ pip install -r requirements.txt
 
 1. Create an API key at [OpenRouter](https://openrouter.ai/)
 2. Launch the app and enter your API key in settings
-3. Configure hotkeys and preferences as needed
+3. Press `Save Settings` to apply the API key
+4. Configure hotkeys and preferences as needed
 
 ## Usage Guide
 
