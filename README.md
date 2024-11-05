@@ -1,12 +1,24 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/434cb205-95bd-4dbb-bfa7-1d390afc4f72">
+  <p>A Python-based autocorrect tool that enhances text in any input field</p>
+  <p>
+    <a href="https://github.com/max1mde/FIX/stargazers">
+      <img src="https://img.shields.io/github/stars/max1mde/FIX.svg" alt="Stars">
+    </a>
+    <a href="https://github.com/max1mde/FIX/forks">
+      <img src="https://img.shields.io/github/forks/max1mde/FIX.svg" alt="Stars">
+    </a>
+    <a href="https://github.com/max1mde/FIX/issues">
+      <img src="https://img.shields.io/github/issues/max1mde/FIX.svg" alt="Issues">
+    </a>
+    <a href="https://github.com/max1mde/FIX/contributors">
+      <img src="https://img.shields.io/github/contributors/max1mde/FIX.svg" alt="Contributors">
+    </a>
+    <a href="https://github.com/max1mde/FIX/releases">
+      <img src="https://img.shields.io/github/release/max1mde/FIX.svg" alt="Release Version">
+    </a>
+  </p>
 </div>
-
-A Python-based autocorrect tool that enhances text input across Windows applications with:
-- Automatic capitalization & punctuation
-- AI-powered rephrasing with customizable hotkeys
-- Instant text fixes and improvements
-- Window for custom prompts
 
 ## Features
 - **Fix Text (Ctrl+F8)**: Automatically corrects capitalization, punctuation, and common typos
