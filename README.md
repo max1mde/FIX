@@ -28,8 +28,8 @@
 - **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations
 
 ## Demo
-![demo_fix](https://github.com/user-attachments/assets/54d51bcc-e332-42d6-8f0f-9464eba7a3d7)
-
+![demo_1](demos/fix_demo_1.gif)
+![demo_2](demos/fix_demo_2.gif)
 
 ## Installation
 
