@@ -27,6 +27,10 @@
 - **Translate (Ctrl+F11)**: Automatic translation between English and German (Or any other language)
 - **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations
 
+## Demo
+![demo_fix](https://github.com/user-attachments/assets/54d51bcc-e332-42d6-8f0f-9464eba7a3d7)
+
+
 ## Installation
 
 ### Option 1: Download Release
