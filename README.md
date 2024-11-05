@@ -27,6 +27,9 @@
 - **Translate (Ctrl+F11)**: Automatic translation between English and German (Or any other language)
 - **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations
 
+> [!IMPORTANT]  
+> Most features will NOT work properly without a valid API key.  
+
 ## Demo
 ![demo_1](demos/fix_demo_1.gif)
 ![demo_2](demos/fix_demo_2.gif)
