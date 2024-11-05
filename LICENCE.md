@@ -2,7 +2,6 @@
 
 **1. Definitions**
    - **Modify**: To create a derivative work by copying, altering, or adapting the original source code.
-   - **Distribute**: To make the software or any derivative, whether compiled or source code, available to third parties, including but not limited to sharing on public platforms or in any form that constitutes publication.
    - **Personal Use**: Use limited to an individual's private, non-commercial activities.
 
 **2. Grant of Rights**
