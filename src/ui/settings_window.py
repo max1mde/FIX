@@ -441,7 +441,7 @@ class SettingsWindow(QMainWindow):
         bottom_layout = QHBoxLayout()
         copyright_label = QLabel("© MaximDe")
         copyright_label.setStyleSheet("color: gray;")
-        github_link = QLabel("<a href='https://github.com/max1mde/AutocorrectApp'>GitHub</a>")
+        github_link = QLabel("<a href='https://github.com/max1mde/FIX'>GitHub</a>")
         github_link.setStyleSheet("color: blue;")
         github_link.setOpenExternalLinks(True)
 

@@ -1,3 +1,4 @@
+import tiktoken
 from pynput.keyboard import Key, Controller
 import time
 import requests
@@ -9,7 +10,6 @@ import re
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication
-import tiktoken
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',

@@ -7,7 +7,7 @@
 **2. Grant of Rights**
    - **2.1 Forking and Modification**: Licensees are granted a non-exclusive, non-transferable right to fork and modify the source code solely for personal use.
    - **2.2 Execution Rights**: Licensees are authorized to execute the software locally on their own systems without restriction.
-   - **2.3 Attribution**: Any public fork or derivative must include a clear and conspicuous acknowledgment with a direct link to [https://github.com/max1mde/AutocorrectApp](https://github.com/max1mde/AutocorrectApp). Such acknowledgment must be maintained in any redistributable copies or modifications where applicable.
+   - **2.3 Attribution**: Any public fork or derivative must include a clear and conspicuous acknowledgment with a direct link to https://github.com/max1mde/FIX. Such acknowledgment must be maintained in any redistributable copies or modifications where applicable.
 
 **3. Restrictions**
    - **3.1 Prohibition of Commercial Use**: Licensees may not sell, sublicense, or derive any financial benefit from any portion of the software or its source code.
