@@ -21,11 +21,11 @@
 </div>
 
 ## Features
-- **Fix Text (Ctrl+F8)**: Automatically corrects capitalization, punctuation, and common typos
-- **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions
-- **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options
+- **Fix Text (Ctrl+F8)**: Automatically corrects capitalization and punctuation
+- **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
+- **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options (by default 3)
 - **Translate (Ctrl+F11)**: Automatic translation between English and German (Or any other language)
-- **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations
+- **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations with some presets
 
 > [!IMPORTANT]  
 > Most features will NOT work properly without a valid API key.  
