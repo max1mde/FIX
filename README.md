@@ -22,10 +22,10 @@
 
 ## Features
 - **Fix Text (Ctrl+F8)**: Automatically corrects capitalization and punctuation
-- **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
-- **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options (by default 3)
-- **Translate (Ctrl+F11)**: Automatic translation between English and German (Or any other language)
-- **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations with some presets
+- **Rephrase (Ctrl+F9)** AI: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
+- **Switch Suggestions (Ctrl+F10)** AI: Cycle through different rephrasing options (by default 3)
+- **Translate (Ctrl+F11)** AI: Automatic translation between English and German (Or any other language)
+- **Custom Prompt (Ctrl+F12)** AI: Open a popup for custom AI text operations with some presets
 
 > [!IMPORTANT]  
 > Most features will NOT work properly without a valid API key.  
@@ -78,21 +78,21 @@ pip install -r requirements.txt
 
 ### Hotkeys (Default settings)
 1. **Fix Text (Ctrl+F8)**
-   - Corrects spelling, capitalization, and punctuation
+   - Adds capitalization, and punctuation
    - Applies custom replacement rules
    - Perfect for quick text cleanup
 
-2. **Rephrase (Ctrl+F9)**
+2. **Rephrase (Ctrl+F9)** AI
    - Generates multiple AI-powered rephrasing options (3 by default)
    - Use Ctrl+F10 to cycle through suggestions
    - Maintains original meaning while improving clarity
 
-3. **Translate (Ctrl+F11)**
+3. **Translate (Ctrl+F11)** AI
    - Automatically detects language
    - Translates between English and an alternate language (default is German)
    - Preserves formatting and tone
 
-4. **Custom Prompt (Ctrl+F12)**
+4. **Custom Prompt (Ctrl+F12)** AI
    - Opens popup with preset operations (when text is marked; otherwise, just an input field)
    - Allows custom AI instructions
    - Quick access to common text transformations
