@@ -22,10 +22,10 @@
 
 ## Features
 - **Fix Text (Ctrl+F8)**: Automatically corrects capitalization and punctuation
-- **Rephrase (Ctrl+F9)** AI: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
-- **Switch Suggestions (Ctrl+F10)** AI: Cycle through different rephrasing options (by default 3)
-- **Translate (Ctrl+F11)** AI: Automatic translation between English and German (Or any other language)
-- **Custom Prompt (Ctrl+F12)** AI: Open a popup for custom AI text operations with some presets
+- AI - **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
+- AI - **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options (by default 3)
+- AI - **Translate (Ctrl+F11)**: Automatic translation between English and German (Or any other language)
+- AI - **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations with some presets
 
 > [!IMPORTANT]  
 > Most features will NOT work properly without a valid API key.  
