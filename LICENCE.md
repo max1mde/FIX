@@ -1,6 +1,6 @@
 **JeTyKe License v2.1**
 
-**DATE**: 11/10/2024  
+**DATE (Modified)**: 11/15/2024  
 **AUTHOR**: max1mde
 
 **1. DEFINITIONS**
@@ -14,7 +14,7 @@
 **2. GRANT OF RIGHTS**
    - **2.1 FORKING AND MODIFICATION**: LICENSEES are granted a NON-EXCLUSIVE, NON-TRANSFERABLE right to fork and modify the SOFTWARE solely for PERSONAL USE.
    - **2.2 EXECUTION RIGHTS**: LICENSEES are authorized to EXECUTE the SOFTWARE locally on their systems without restriction.
-   - **2.3 ATTRIBUTION**: Any public fork, derivative, or publication must include a clear and conspicuous acknowledgment of the AUTHOR with a direct link to the official project page at [https://github.com/max1mde/max1mde](https://github.com/max1mde/max1mde). This acknowledgment must be retained in any redistributable copies or modifications where applicable.
+   - **2.3 ATTRIBUTION**: Any public fork, derivative, or publication must include a clear and conspicuous acknowledgment of the AUTHOR with a direct link to the official project page at https://github.com/max1mde/FIX. This acknowledgment must be retained in any redistributable copies or modifications where applicable.
 
 **3. RESTRICTIONS**
    - **3.1 NO DISTRIBUTION OF EXECUTABLES**: LICENSEES are expressly prohibited from DISTRIBUTING, sharing, or publishing any compiled or executable versions of the SOFTWARE. This restriction does not apply to the source code itself.
