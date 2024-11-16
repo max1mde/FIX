@@ -248,12 +248,13 @@ class AutocorrectService:
             try:
                 input_tokens = self.count_tokens(prompt)
                 response = requests.post(
-                    url="https://openrouter.ai/api/v1/chat/completions",
+                    url=f"{self.settings.get_setting('api_endpoint', 'https://openrouter.ai/api/v1/chat/completions')}",
                     headers={
-                        "Authorization": f"Bearer {self.settings.get_setting('open_router_key')}",
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {self.settings.get_setting('provider_api_key')}",
                     },
                     data=json.dumps({
-                        "model": "openai/gpt-4o-mini",
+                        "model": f"{self.settings.get_setting('api_model', 'openai/gpt-4o-mini')}",
                         "messages": [{"role": "user", "content": prompt}]
                     }),
                     timeout=10
@@ -267,8 +268,12 @@ class AutocorrectService:
                 completion_text = response_data['choices'][0]['message']['content']
                 completion_tokens = self.count_tokens(completion_text)
 
-                self.settings.update_usage(input_tokens, completion_tokens)
+                default_endpoint = self.settings.get_default_setting('api_endpoint')
+                default_model = self.settings.get_default_setting('api_model')
 
+                if (self.settings.get_setting('api_endpoint') == default_endpoint and
+                        self.settings.get_setting('api_model') == default_model):
+                    self.settings.update_usage(input_tokens, completion_tokens)
 
                 return response_data
             except requests.exceptions.RequestException as e:

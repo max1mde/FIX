@@ -39,7 +39,9 @@ class SettingsManager:
         'custom_prompt.use_replacements': True,
         'custom_prompt.auto_custom_prompt': True,
         'auto_select_text': False,
-        'open_router_key': '',
+        'provider_api_key': '',
+        'api_endpoint': 'https://openrouter.ai/api/v1/chat/completions',
+        'api_model': 'openai/gpt-4o-mini',
         'replacements': {
             'i': 'I',
             'jz': 'jetzt',
@@ -427,6 +429,9 @@ class SettingsManager:
     def get_setting(self, key: str, default: Any = None) -> Any:
         return self.settings.get(key, default)
 
+    def get_default_setting(self, key: str, default: Any = None) -> Any:
+        return self.DEFAULT_SETTINGS.get(key, default)
+
     def set_setting(self, key: str, value: Any) -> None:
         self.settings[key] = value
         self.save_settings()
@@ -436,11 +441,11 @@ class SettingsManager:
 
     def reset_settings(self) -> None:
         usage_stats = self.settings.get('usage_stats', self.DEFAULT_SETTINGS['usage_stats']).copy()
-        open_router_key = self.settings.get('open_router_key', self.DEFAULT_SETTINGS['open_router_key'])
+        provider_api_key = self.settings.get('provider_api_key', self.DEFAULT_SETTINGS['provider_api_key'])
 
         self.settings = self.DEFAULT_SETTINGS.copy()
         self.settings['usage_stats'] = usage_stats
-        self.settings['open_router_key'] = open_router_key
+        self.settings['provider_api_key'] = provider_api_key
         self.save_settings()
 
     def update_usage(self, input_tokens: int, completion_tokens: int) -> None:
