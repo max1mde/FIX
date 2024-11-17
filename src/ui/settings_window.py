@@ -348,6 +348,7 @@ class SettingsWindow(QMainWindow):
         self.setWindowTitle("FIX - Autocorrect")
         self.setWindowIcon(QIcon("assets/icon.ico"))
         self.settings_modified = False
+
     def setup_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -356,7 +357,7 @@ class SettingsWindow(QMainWindow):
         general_group = QGroupBox("General")
         general_layout = QVBoxLayout()
 
-        usage_group = QGroupBox("API Usage Statistics")
+        self.usage_group = QGroupBox("API Usage Statistics")
         usage_layout = QVBoxLayout()
 
         self.input_tokens_label = QLabel()
@@ -375,7 +376,7 @@ class SettingsWindow(QMainWindow):
 
         api_layout = QHBoxLayout()
         self.token = QLineEdit()
-        self.token.setPlaceholderText("Enter OpenRouter API key")
+        self.token.setPlaceholderText("Enter API key")
         self.token.setEchoMode(QLineEdit.EchoMode.Password)
         self.token.textChanged.connect(self.mark_modified)
 
@@ -383,13 +384,29 @@ class SettingsWindow(QMainWindow):
         self.show_token_btn.setFixedWidth(60)
         self.show_token_btn.clicked.connect(self.toggle_token_visibility)
 
-        usage_group.setLayout(usage_layout)
-        general_layout.addWidget(usage_group)
+        self.usage_group.setLayout(usage_layout)
+        general_layout.addWidget(self.usage_group)
 
-        api_layout.addWidget(QLabel("OpenRouter API Key:"))
+        api_layout.addWidget(QLabel("API Key:"))
         api_layout.addWidget(self.token)
         api_layout.addWidget(self.show_token_btn)
         general_layout.addLayout(api_layout)
+
+        endpoint_layout = QHBoxLayout()
+        self.endpoint = QLineEdit()
+        self.endpoint.setPlaceholderText("Enter endpoint url")
+        self.endpoint.setText(self.settings.get_setting('api_endpoint'))
+        endpoint_layout.addWidget(QLabel("Endpoint:"))
+        endpoint_layout.addWidget(self.endpoint)
+        general_layout.addLayout(endpoint_layout)
+
+        model_layout = QHBoxLayout()
+        self.model = QLineEdit()
+        self.model.setPlaceholderText("Enter model name")
+        self.model.setText(self.settings.get_setting('api_model'))
+        model_layout.addWidget(QLabel("Model:"))
+        model_layout.addWidget(self.model)
+        general_layout.addLayout(model_layout)
 
         self.auto_select_text = QCheckBox("Auto Select Text")
         self.auto_select_text.stateChanged.connect(self.mark_modified)
@@ -450,7 +467,7 @@ class SettingsWindow(QMainWindow):
         bottom_layout.addWidget(github_link)
         layout.addLayout(bottom_layout)
 
-        self.setFixedSize(340, 580)
+        self.setFixedSize(340, 610)
         self.load_settings()
 
         self.update_usage_display()
@@ -528,14 +545,20 @@ class SettingsWindow(QMainWindow):
             self.settings_modified = True
 
     def load_settings(self):
-        self.token.setText(self.settings.get_setting('open_router_key', ''))
+        self.token.setText(self.settings.get_setting('provider_api_key', ''))
+        self.endpoint.setText(self.settings.get_setting('api_endpoint', ''))
+        self.model.setText(self.settings.get_setting('api_model', ''))
         self.auto_select_text.setChecked(self.settings.get_setting('auto_select_text', True))
         self.settings_modified = False
+        self.update_usage_group_visibility()
 
     def save_settings(self):
-        self.settings.set_setting('open_router_key', self.token.text())
+        self.settings.set_setting('provider_api_key', self.token.text())
+        self.settings.set_setting('api_endpoint', self.endpoint.text())
+        self.settings.set_setting('api_model', self.model.text())
         self.settings.set_setting('auto_select_text', self.auto_select_text.isChecked())
         self.settings_modified = False
+        self.update_usage_group_visibility()
 
     def reset_settings(self):
         dialog = ConfirmationDialog(
@@ -545,6 +568,19 @@ class SettingsWindow(QMainWindow):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.settings.reset_settings()
             self.load_settings()
+
+    def update_usage_group_visibility(self):
+        default_endpoint = self.settings.get_default_setting('api_endpoint')
+        default_model = self.settings.get_default_setting('api_model')
+
+        if self.endpoint.text() != default_endpoint or self.model.text() != default_model:
+            self.usage_group.hide()
+            self.usage_group.setEnabled(False)
+            self.setFixedSize(340, 475)
+        else:
+            self.usage_group.show()
+            self.usage_group.setEnabled(True)
+            self.setFixedSize(340, 610)
 
     def terminate_application(self):
         if self.settings_modified:
