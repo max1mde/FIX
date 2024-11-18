@@ -9,7 +9,7 @@ import re
 import tiktoken
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -24,12 +24,151 @@ controller = Controller()
 
 class Worker(QObject):
     show_dialog = pyqtSignal(str)
-
+    show_command_dialog = pyqtSignal(str)
     def handle_custom_prompt(self, selected_text):
         try:
             self.show_dialog.emit(selected_text)
         except Exception as e:
             logger.error(f"Error in handle_custom_prompt: {str(e)}")
+
+    def handle_command_execution(self):
+        try:
+            self.show_command_dialog.emit("")
+        except Exception as e:
+            logger.error(f"Error in handle_command_execution: {str(e)}")
+
+class CommandExecutionDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        try:
+            self.setup_ui()
+        except Exception as e:
+            logger.error(f"Error initializing CommandExecutionDialog: {str(e)}")
+            self.close()
+
+    def setup_ui(self):
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint | Qt.WindowType.Popup | Qt.WindowType.NoDropShadowWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setModal(True)
+        self.selected_command = None
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(10)
+        layout.setContentsMargins(10, 10, 10, 10)
+
+        top_layout = QHBoxLayout()
+        top_layout.addStretch()
+
+        self.is_dragging = False
+        self.drag_position = QPoint()
+
+        self.close_button = QPushButton("X")
+        self.close_button.setFixedSize(20, 20)
+        self.close_button.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(30, 30, 30, 0.9);
+                color: white;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 0;
+                margin: 0;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 0, 0, 0.8);
+            }
+        """)
+        top_layout.addWidget(self.close_button)
+
+        cursor_position = QCursor.pos()
+        x_position = cursor_position.x() - (self.width() // 5) + 5
+        y_position = cursor_position.y() + 80
+        self.move(x_position, y_position)
+
+        layout.addLayout(top_layout)
+
+        self.command_input = QLineEdit()
+        self.command_input.setPlaceholderText("Enter command (e.g., 'open explorer', 'shutdown pc in 20 minutes')...")
+        self.command_input.setStyleSheet("""
+            QLineEdit {
+                background-color: rgba(20, 20, 20, 0.85);
+                border-radius: 15px;
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                color: white;
+            }
+        """)
+        layout.addWidget(self.command_input)
+
+        quick_actions = {
+            "Open Explorer": "open explorer",
+            "Open PowerShell": "open powershell",
+            "Shutdown in 30min": "shutdown pc in 30 minutes",
+            "Restart PC": "restart pc",
+            "Lock PC": "lock pc",
+        }
+
+        buttons_layout = QHBoxLayout()
+        for action_name, action_command in quick_actions.items():
+            btn = QPushButton(action_name)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: rgba(30, 30, 30, 0.9);
+                    color: white;
+                    border-radius: 10px;
+                    padding: 5px 10px;
+                    margin: 2px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(70, 70, 70, 1);
+                }
+            """)
+            buttons_layout.addWidget(btn)
+            btn.clicked.connect(lambda checked, c=action_command: self.handle_quick_action(c))
+
+        layout.addLayout(buttons_layout)
+
+        self.command_input.returnPressed.connect(self.handle_return_pressed)
+        self.close_button.clicked.connect(self.reject)
+
+    def handle_quick_action(self, command):
+        try:
+            self.selected_command = command
+            self.accept()
+        except Exception as e:
+            logger.error(f"Error in handle_quick_action: {str(e)}")
+
+    def handle_return_pressed(self):
+        self.selected_command = self.command_input.text()
+        self.accept()
+
+    def get_result(self):
+        return self.selected_command
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QColor(1, 1, 1, 170))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRoundedRect(self.rect(), 15, 15)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.is_dragging = True
+            self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self.is_dragging and event.buttons() == Qt.MouseButton.LeftButton:
+            self.move(event.globalPosition().toPoint() - self.drag_position)
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.is_dragging = False
+            event.accept()
 
 
 class CustomPromptDialog(QDialog):
@@ -271,6 +410,7 @@ class AutocorrectService:
             self.worker_thread = QThread()
             self.worker.moveToThread(self.worker_thread)
             self.worker.show_dialog.connect(self.get_custom_prompt)
+            self.worker.show_command_dialog.connect(self.get_command_execution)
             self.worker_thread.start()
             self.setup_hotkeys()
         except Exception as e:
@@ -488,6 +628,58 @@ class AutocorrectService:
         except Exception as e:
             logger.error(f"Error in handle_translation_hotkey: {str(e)}")
 
+    def handle_command_execution_hotkey(self):
+        try:
+            if not self.enabled:
+                return
+
+            self.worker.handle_command_execution()
+
+        except Exception as e:
+            logger.error(f"Error in handle_command_execution_hotkey: {str(e)}")
+
+    def get_command_execution(self, _):
+        try:
+            dialog = CommandExecutionDialog()
+
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                command = dialog.get_result()
+                if command:
+                    self.execute_command(command)
+
+        except Exception as e:
+            logger.error(f"Error in get_command_execution: {str(e)}")
+
+    def execute_command(self, command_text):
+        try:
+            prompt = self.settings.get_setting('command_execution.prompt') + command_text
+
+            try:
+                response_data = self.make_api_request(prompt)
+                command = response_data['choices'][0]['message']['content'].strip()
+
+                if "This action is impossible" in command:
+                    QMessageBox.warning(None, "Command Execution",
+                                        "This action cannot be performed or might be dangerous.")
+                    return
+
+                print(command)
+                import subprocess
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = 0
+
+                subprocess.Popen(['powershell.exe', '-Command', command],
+                                 startupinfo=si, creationflags=subprocess.CREATE_NEW_CONSOLE)
+
+            except Exception as e:
+                logger.error(f"Error in API communication or command execution: {str(e)}")
+                QMessageBox.critical(None, "Error",
+                                     f"Failed to execute command: {str(e)}")
+
+        except Exception as e:
+            logger.error(f"Error in execute_command: {str(e)}")
+
     def handle_custom_prompt_hotkey(self):
         try:
             if not self.enabled:
@@ -558,6 +750,8 @@ class AutocorrectService:
             keyboard.add_hotkey(self.settings.get_setting('rephrase.switch_phrasings_hotkey'), self.switch_phrasings)
             keyboard.add_hotkey(self.settings.get_setting('translate.hotkey'), self.handle_translation_hotkey)
             keyboard.add_hotkey(self.settings.get_setting('custom_prompt.hotkey'), self.handle_custom_prompt_hotkey)
+            keyboard.add_hotkey(self.settings.get_setting('command_execution.hotkey'),
+                                self.handle_command_execution_hotkey)
             logger.info("Hotkeys successfully set up")
         except Exception as e:
             logger.error(f"Error setting up hotkeys: {str(e)}")

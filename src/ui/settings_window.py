@@ -202,6 +202,51 @@ class TranslateModuleWindow(QDialog):
         self.settings_modified = True
 
 
+class CommandExecutionModuleWindow(QDialog):
+    def __init__(self, settings_manager, parent=None):
+        super().__init__(parent)
+        self.settings = settings_manager
+        self.setWindowTitle("Command Execution Module Settings (AI)")
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setup_ui()
+        self.load_settings()
+        self.settings_modified = False
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.prompt = QLineEdit()
+        self.prompt.textChanged.connect(self.mark_modified)
+        prompt_label = QLabel("Command Execution Prompt:")
+
+        self.hotkey_input = QKeySequenceEdit()
+        hotkey_label = QLabel("Command Execution Hotkey:")
+
+        layout.addWidget(prompt_label)
+        layout.addWidget(self.prompt)
+        layout.addWidget(hotkey_label)
+        layout.addWidget(self.hotkey_input)
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_settings)
+        layout.addWidget(save_btn)
+
+    def load_settings(self):
+        self.prompt.setText(self.settings.get_setting('command_execution.prompt',
+                                                      'Convert the following user prompt into a PowerShell command or script. If it is impossible or dangerous, '
+                                                      'reply with "This action is impossible". Respond with only the command or script (It will be executed directly):'
+                                                      ))
+        self.hotkey_input.setKeySequence(QKeySequence(self.settings.get_setting('command_execution.hotkey', 'Ctrl+F7')))
+
+    def save_settings(self):
+        self.settings.set_setting('command_execution.prompt', self.prompt.text())
+        self.settings.set_setting('command_execution.hotkey', self.hotkey_input.keySequence().toString())
+        self.settings_modified = False
+        self.close()
+
+    def mark_modified(self):
+        self.settings_modified = True
+
 class CustomPromptModuleWindow(QDialog):
     def __init__(self, settings_manager, parent=None):
         super().__init__(parent)
@@ -434,6 +479,10 @@ class SettingsWindow(QMainWindow):
         custom_prompt_btn.clicked.connect(self.show_custom_prompt_settings)
         modules_layout.addWidget(custom_prompt_btn)
 
+        command_execution_btn = QPushButton("Command Execution Module Settings (AI)")
+        command_execution_btn.clicked.connect(self.show_command_execution_settings)
+        modules_layout.addWidget(command_execution_btn)
+
         modules_group.setLayout(modules_layout)
         layout.addWidget(modules_group)
 
@@ -535,6 +584,10 @@ class SettingsWindow(QMainWindow):
 
     def show_custom_prompt_settings(self):
         dialog = CustomPromptModuleWindow(self.settings, self)
+        dialog.exec()
+
+    def show_command_execution_settings(self):
+        dialog = CommandExecutionModuleWindow(self.settings, self)
         dialog.exec()
 
     def show_replacements(self):

@@ -41,6 +41,14 @@ class SettingsManager:
         'custom_prompt.hotkey': 'Ctrl+F12',
         'custom_prompt.use_replacements': True,
         'custom_prompt.auto_custom_prompt': True,
+        'command_execution.hotkey': 'Ctrl+F7',
+        'command_execution.prompt': (
+            'Convert this command to a PowerShell script. If impossible (Or you cannot get it to work in one try) or dangerous, respond with "This action is impossible". '
+            'Output only the command. Do not include explanations, notes, or instructions. Examples:\n'
+            '- "open discord" → Start-Process "C:\\Users\\$env:USERNAME\\AppData\\Local\\Discord\\Update.exe" --processStart Discord.exe\n'
+            '- "shutdown in 30 minutes" → shutdown.exe /s /t 1800\n'
+            'Convert this:'
+        ),
         'auto_select_text': False,
         'provider_api_key': '',
         'api_endpoint': 'https://openrouter.ai/api/v1/chat/completions',
