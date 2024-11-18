@@ -144,6 +144,11 @@ class CustomPromptDialog(QDialog):
 
                 "Translate": "Translate between English and German, preserving meaning rather than a literal "
                              "translation. Correct spelling, grammar, punctuation, and capitalization.",
+
+                "Paraphrase": "Rephrase the text to convey the same meaning in different words while maintaining "
+                              "clarity and tone.",
+
+                "Bullet Points": "Transform the text into concise bullet points for easier reading.",
             }
 
             first_half = list(quick_actions.items())[:len(quick_actions) // 2]
