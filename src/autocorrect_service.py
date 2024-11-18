@@ -110,9 +110,9 @@ class CustomPromptDialog(QDialog):
 
             quick_actions = {
                 "Fix": "Correct all spelling, capitalization, grammar, and punctuation errors without changing wording.",
-                "Shorter": "Make the text shorter and more concise while maintaining the key message. Correct spelling, grammar, punctuation, and capitalization.",
+                "Shorter": "Make the text shorter. Correct spelling, grammar, punctuation, and capitalization.",
                 "Longer": "Expand the text with more detail while maintaining the same tone. Correct spelling, grammar, punctuation, and capitalization.",
-                "Like Email": "Rewrite the text as a professional email",
+                "Like Email": "Rewrite the text as a professional or casual email based on the provided text.",
                 "Add Emoticons": "Add emoticons at the end of sentences which fit to the text. You can choose from "
                                  "this list: ._., :), :D, T-T, :(, <3, :3, 3:, xD, xd, XD. Correct spelling, grammar, punctuation, and capitalization.",
                 "More Formal": "Make the text more formal and professional",
@@ -123,14 +123,10 @@ class CustomPromptDialog(QDialog):
                 "Add Emojis": "Add (gen z) fitting emojis like 💀😭👌🫵😂🏢✈️🧨😏🥶💦💅🗣️ to the text (they should "
                               "NOT be random and fit to th text). Correct spelling, grammar, punctuation, "
                               "and capitalization. (Use max 1 emoji in a row)",
-                "Add many Emojis (old people)": "Add to the text some (boomer) emojis (they should NOT be randomly "
-                                                "choosen"
-                                                "and fit into to the text) here is a good list from often used emojis:"
-                                                "😊😇🤣🤗☘️🙈👼😀🤩🫢🙏👍😎😍🙃😻😹. Sometimes just add an emoji after "
-                                                "some activity mentioned or thing like for example after: we went to "
-                                                "the"
-                                                "beach ☀️🏖️. Correct spelling, grammar, punctuation, "
-                                                "and capitalization.",
+                "Add Emojis (Boomer)": "Add fitting 'boomer' emojis to the text (not random). Use examples "
+                                       "like 😊😇🤣🤗☘️🙈👼😀🤩🫢🙏👍😎😍🙃😻😹. Place emojis after "
+                                       "activities or items, e.g., we went to the beach ☀️🏖️. Ensure "
+                                       "correct spelling, grammar, and punctuation.",
                 "Translate": "Translate English to German or vice versa. Correct spelling, grammar, punctuation, "
                              "and capitalization."
             }
