@@ -62,6 +62,7 @@ class AutocorrectApp:
 
     def _show_error_and_exit(self, message: str) -> None:
         QMessageBox.critical(None, "Error", message)
+        print(message)
         self.quit_app()
 
     def quit_app(self) -> None:
