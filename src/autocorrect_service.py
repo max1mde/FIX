@@ -89,7 +89,7 @@ class CommandExecutionDialog(QDialog):
         layout.addLayout(top_layout)
 
         self.command_input = QLineEdit()
-        self.command_input.setPlaceholderText("Enter command (e.g., 'open explorer', 'shutdown pc in 20 minutes')...")
+        self.command_input.setPlaceholderText("Enter command (e.g., 'open browser', 'shutdown pc in 20 minutes'...)")
         self.command_input.setStyleSheet("""
             QLineEdit {
                 background-color: rgba(20, 20, 20, 0.85);
@@ -103,11 +103,11 @@ class CommandExecutionDialog(QDialog):
         layout.addWidget(self.command_input)
 
         quick_actions = {
-            "Open Explorer": "open explorer",
-            "Open PowerShell": "open powershell",
-            "Shutdown in 30min": "shutdown pc in 30 minutes",
-            "Restart PC": "restart pc",
+            "Open Recycle Bin": "open recycle bin",
+            "Minimize windows": "minimize all windows",
+            "Create and open file on desktop": "create a file on desktop called test.txt and open it",
             "Lock PC": "lock pc",
+            "Open device manager": "open the windows device manager app",
         }
 
         buttons_layout = QHBoxLayout()
