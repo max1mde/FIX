@@ -157,14 +157,14 @@ class CustomPromptDialog(QDialog):
                 last_prompt_btn = QPushButton("Last Prompt")
                 last_prompt_btn.setStyleSheet("""
                     QPushButton {
-                        background-color: rgba(30, 120, 220, 0.9); 
+                        background-color: rgba(30, 40, 90, 0.9); 
                         color: white;
                         border-radius: 10px;
                         padding: 5px 10px;
                         margin: 2px;
                     }
                     QPushButton:hover {
-                        background-color: rgba(40, 140, 240, 1); 
+                        background-color: rgba(70, 80, 120, 1); 
                     }
                 """)
                 buttons_layout_top.addWidget(last_prompt_btn)
