@@ -109,26 +109,41 @@ class CustomPromptDialog(QDialog):
             buttons_layout_bottom = QHBoxLayout()
 
             quick_actions = {
-                "Fix": "Correct all spelling, capitalization, grammar, and punctuation errors without changing wording.",
-                "Shorter": "Make the text shorter. Correct spelling, grammar, punctuation, and capitalization.",
-                "Longer": "Expand the text with more detail while maintaining the same tone. Correct spelling, grammar, punctuation, and capitalization.",
-                "Like Email": "Rewrite the text as a professional or casual email based on the provided text.",
-                "Add Emoticons": "Add emoticons at the end of sentences which fit to the text. You can choose from "
-                                 "this list: ._., :), :D, T-T, :(, <3, :3, 3:, xD, xd, XD. Correct spelling, grammar, punctuation, and capitalization.",
-                "More Formal": "Make the text more formal and professional",
-                "More Casual": "Make the text more casual and friendly",
-                "Fix code": "Fix any mistakes (syntax or logic) in this code",
-                "Improve code": "Improve the code in the in terms of readability, performance & conventions. Do not "
-                                "include ```'s in the answer just the modified raw code. Also don't ",
-                "Add Emojis": "Add (gen z) fitting emojis like 💀😭👌🫵😂🏢✈️🧨😏🥶💦💅🗣️ to the text (they should "
-                              "NOT be random and fit to th text). Correct spelling, grammar, punctuation, "
-                              "and capitalization. (Use max 1 emoji in a row)",
-                "Add Emojis (Boomer)": "Add fitting 'boomer' emojis to the text (not random). Use examples "
-                                       "like 😊😇🤣🤗☘️🙈👼😀🤩🫢🙏👍😎😍🙃😻😹. Place emojis after "
-                                       "activities or items, e.g., we went to the beach ☀️🏖️. Ensure "
-                                       "correct spelling, grammar, and punctuation.",
-                "Translate": "Translate English to German or vice versa. Correct spelling, grammar, punctuation, "
-                             "and capitalization."
+                "Fix": "Correct all spelling, grammar, capitalization, and punctuation errors without changing wording.",
+
+                "Shorter": "Shorten the text while maintaining meaning and correcting spelling, grammar, punctuation, "
+                           "and capitalization.",
+
+                "Longer": "Expand the text with more detail while preserving tone and correcting spelling, grammar, "
+                          "punctuation, and capitalization.",
+
+                "Like Email": "Rewrite the text as a professional or casual email, depending on context.",
+
+                "Add Emoticons": "Add fitting emoticons at the end of sentences (choose from ._., :), :D, T-T, :(, "
+                                 "<3, :3, 3:, xD, xd, XD). Correct spelling, grammar, punctuation, and capitalization.",
+
+                "More Formal": "Make the text more formal and professional, with corrections to spelling, grammar, "
+                               "punctuation, and capitalization.",
+
+                "More Casual": "Make the text more casual and friendly, with corrections to spelling, grammar, "
+                               "punctuation, and capitalization.",
+
+                "Fix Code": "Correct any syntax or logical errors in the code. Keep the same formatting as in the "
+                            "provided code.",
+
+                "Improve Code": "Improve code readability, performance, and conventions. Keep the same formatting as "
+                                "in the provided code.",
+
+                "Add Emojis": "Add relevant Gen Z emojis (e.g., 💀, 😂, 🫵, 😭, 🗣️, 👌) that match the tone of the "
+                              "text. Correct"
+                              "spelling, grammar, punctuation, and capitalization.",
+
+                "Add Emojis (Boomer)": "Add fitting 'boomer' emojis (e.g., 😊, 👍, 😇, 😎, 🤣, 🤗, 🙈, 🤩,) where "
+                                       "appropriate. Correct"
+                                       "spelling, grammar, punctuation, and capitalization.",
+
+                "Translate": "Translate between English and German, preserving meaning rather than a literal "
+                             "translation. Correct spelling, grammar, punctuation, and capitalization.",
             }
 
             first_half = list(quick_actions.items())[:len(quick_actions) // 2]
