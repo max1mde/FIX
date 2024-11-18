@@ -41,6 +41,12 @@ class SettingsManager:
         'custom_prompt.hotkey': 'Ctrl+F12',
         'custom_prompt.use_replacements': True,
         'custom_prompt.auto_custom_prompt': True,
+        'command_execution.hotkey': 'Ctrl+F7',
+        'command_execution.prompt': (
+            'Convert the following user prompt into a PowerShell command or script. If it is impossible or dangerous, '
+            'reply'
+            'with "This action is impossible". Respond with only the command or script (It will be executed directly):'
+        ),
         'auto_select_text': False,
         'provider_api_key': '',
         'api_endpoint': 'https://openrouter.ai/api/v1/chat/completions',

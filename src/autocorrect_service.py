@@ -32,6 +32,7 @@ class Worker(QObject):
             logger.error(f"Error in handle_custom_prompt: {str(e)}")
 
 
+
 class CustomPromptDialog(QDialog):
     def __init__(self, parent=None, last_prompt=None, show_suggestions=None):
         super().__init__(parent)
