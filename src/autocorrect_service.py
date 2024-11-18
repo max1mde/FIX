@@ -35,13 +35,14 @@ class Worker(QObject):
 class CustomPromptDialog(QDialog):
     def __init__(self, parent=None, last_prompt=None, show_suggestions=None):
         super().__init__(parent)
+        self.last_prompt = last_prompt
         try:
-            self.setup_ui(last_prompt, show_suggestions)
+            self.setup_ui(show_suggestions)
         except Exception as e:
             logger.error(f"Error initializing CustomPromptDialog: {str(e)}")
             self.close()
 
-    def setup_ui(self, last_prompt, show_suggestions):
+    def setup_ui(self, show_suggestions):
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint | Qt.WindowType.Popup | Qt.WindowType.NoDropShadowWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -105,8 +106,6 @@ class CustomPromptDialog(QDialog):
         layout.addWidget(self.prompt_input)
 
         if show_suggestions is not None:
-            buttons_layout_top = QHBoxLayout()
-            buttons_layout_bottom = QHBoxLayout()
 
             quick_actions = {
                 "Fix": "Correct all spelling, grammar, capitalization, and punctuation errors without changing wording.",
@@ -151,6 +150,26 @@ class CustomPromptDialog(QDialog):
                 "Bullet Points": "Transform the text into concise bullet points for easier reading.",
             }
 
+            buttons_layout_top = QHBoxLayout()
+            buttons_layout_bottom = QHBoxLayout()
+
+            if self.last_prompt:
+                last_prompt_btn = QPushButton("Last Prompt")
+                last_prompt_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: rgba(30, 120, 220, 0.9); 
+                        color: white;
+                        border-radius: 10px;
+                        padding: 5px 10px;
+                        margin: 2px;
+                    }
+                    QPushButton:hover {
+                        background-color: rgba(40, 140, 240, 1); 
+                    }
+                """)
+                buttons_layout_top.addWidget(last_prompt_btn)
+                last_prompt_btn.clicked.connect(self.handle_last_prompt)
+
             first_half = list(quick_actions.items())[:len(quick_actions) // 2]
             for action_name, action_prompt in first_half:
                 btn = QPushButton(action_name)
@@ -192,6 +211,10 @@ class CustomPromptDialog(QDialog):
 
         self.prompt_input.returnPressed.connect(self.handle_return_pressed)
         self.close_button.clicked.connect(self.reject)
+
+    def handle_last_prompt(self):
+        if self.last_prompt:
+            self.handle_quick_action(self.last_prompt)
 
     def handle_quick_action(self, prompt):
         try:
@@ -405,7 +428,8 @@ class AutocorrectService:
                 extracted = dialog.get_result()
                 if extracted:
                     self.last_prompt = extracted
-                    prompt = extracted if not selected_text else f"{extracted}. This is the text, which should be modified (Only answer with the modified text nothing else.): {selected_text}"
+                    prompt = extracted if not selected_text else f"{extracted}. Modify this text (Only reply with the " \
+                                                                 f"modified text, nothing else): {selected_text}"
 
                     try:
                         response_data = self.make_api_request(prompt)
