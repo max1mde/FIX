@@ -49,8 +49,8 @@ class SettingsManager:
             '- **Hotkey**: For key combinations.\n'
             '- **Wait**: For delays in seconds (only when needed).\n'
             "- **Clipboard**: For copying or pasting text (Example: Clipboard: Copy 'text').\n"
-            'Output steps as "1. ActionType: Details." (Use default browser for URLs). If impossible, say "This '
-            'action is impossible because [reason]."\n'
+            'Output steps as "1. ActionType: Details." (Use default browser for URLs). If impossible or dangerous, '
+            'say "This action is impossible because [reason]."\n'
             'Example 1:\n'
             '- Task: "Skip to the next song on Spotify."\n'
             '  1. PowerShell: Start-Process "$env:APPDATA\Spotify\Spotify.exe"\n'
