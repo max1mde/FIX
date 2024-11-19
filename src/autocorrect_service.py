@@ -11,7 +11,7 @@ from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox
 
-from src.command_executer import CommandExecutor
+from command_executer import CommandExecutor
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
