@@ -141,3 +141,6 @@ class SettingsManager:
         except Exception as e:
             print(f"Error reading file {filename}: {str(e)}")
             return {}
+
+    def get_settings_directory(self) -> Path:
+        return self.app_data

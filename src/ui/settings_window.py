@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem)
 
 
-window_height = 650
+window_height = 670
 window_width = 350
 
 class ConfirmationDialog(QDialog):
@@ -497,6 +497,10 @@ class SettingsWindow(QMainWindow):
         save_btn.clicked.connect(self.save_settings)
         layout.addWidget(save_btn)
 
+        open_dir_button = QPushButton("Open Settings Directory")
+        open_dir_button.clicked.connect(self.open_settings_directory)
+        layout.addWidget(open_dir_button)
+
         reset_btn = QPushButton("Reset Settings")
         reset_btn.setStyleSheet("background-color: red; color: white; font-weight: bold;")
         reset_btn.clicked.connect(self.reset_settings)
@@ -615,6 +619,20 @@ class SettingsWindow(QMainWindow):
         self.settings.set_setting('auto_select_text', self.auto_select_text.isChecked())
         self.settings_modified = False
         self.update_usage_group_visibility()
+
+    def open_settings_directory(self):
+        import os
+        import platform
+        import subprocess
+
+        directory = self.settings.get_settings_directory()
+
+        if platform.system() == "Windows":
+            os.startfile(directory)
+        elif platform.system() == "Darwin":  # macOS
+            subprocess.Popen(["open", directory])
+        else:  # Linux
+            subprocess.Popen(["xdg-open", directory])
 
     def reset_settings(self):
         dialog = ConfirmationDialog(
