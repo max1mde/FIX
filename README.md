@@ -21,7 +21,7 @@
 </div>
 
 ## Features
-- AI - **Command Execution Prompt (Ctrl+F7)**: Perform almost any action in windows like "open recycle bin" using a text box
+- AI - **Command Execution Prompt (Ctrl+F7)**: Perform almost any action in windows like "open recycle bin" using a text box (multi steps support)
 - **Fix Text (Ctrl+F8)**: Automatically corrects capitalization and punctuation
 - AI - **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
 - AI - **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options (by default 3)
@@ -82,6 +82,10 @@ pip install -r requirements.txt
 1. **Command Execution Prompt (Ctrl+F7)**
    - Opens popup with preset operations (for example: Open device manager)
    - Allows custom AI instructions
+Example prompt:
+`open chrome 3 times, open spotify and skip song, open rick roll on youtube, close browser`
+![image](https://github.com/user-attachments/assets/fa3d0599-bbc5-48bb-b53d-900a756bcbc7)
+
 
 1. **Fix Text (Ctrl+F8)**
    - Adds capitalization, and punctuation
