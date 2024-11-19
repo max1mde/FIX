@@ -1,9 +1,11 @@
+import os
 import re
 import subprocess
 import time
 import pyperclip
 from pynput.keyboard import Key, Controller
 from PyQt6.QtWidgets import QMessageBox
+from send2trash import send2trash
 
 controller = Controller()
 
@@ -65,6 +67,7 @@ class CommandExecutor:
                 self.run_clipboard(clipboard_command)
             else:
                 self.logger.error(f"Unknown step type: {step}")
+                QMessageBox.critical(None, "Error", step)
                 return False
             return True
         except Exception as e:
@@ -84,9 +87,30 @@ class CommandExecutor:
 
         for pattern, description in dangerous_patterns:
             if re.search(pattern, command.lower()):
-                QMessageBox.warning(None, "Command Execution",
-                                    f"Blocked dangerous operation: {description}")
+                QMessageBox.warning(None, "Command Execution", f"Blocked dangerous operation: {description}")
                 return
+
+        if 'remove-item' in command.lower():
+            match = re.search(r'remove-item\s+"([^"]+)"', command, re.IGNORECASE)
+            if match:
+                file_path = match.group(1)
+                try:
+
+                    if "$env:" in file_path:
+                        file_path = file_path.replace("$env:USERPROFILE", os.environ["USERPROFILE"])
+
+                    file_path = os.path.normpath(file_path)
+
+                    if not os.path.exists(file_path):
+                        raise FileNotFoundError(f"The file '{file_path}' does not exist.")
+
+                    send2trash(file_path)
+                    QMessageBox.information(None, "File Moved",
+                                            f"File '{file_path}' has been moved to the Recycle Bin.")
+                    return
+                except Exception as e:
+                    QMessageBox.warning(None, "Error", f"Failed to move the file to the Recycle Bin: {str(e)}")
+                    return
 
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -133,7 +157,8 @@ class CommandExecutor:
                 'END': Key.end,
                 'INSERT': Key.insert,
                 'DELETE': Key.delete,
-                'NUMLOCK': Key.num_lock,
+                'VOLUMEUP': Key.media_volume_up,
+                'VOLUMEDOWN': Key.media_volume_down,
             }
 
 

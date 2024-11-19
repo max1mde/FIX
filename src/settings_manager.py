@@ -43,18 +43,22 @@ class SettingsManager:
         'custom_prompt.auto_custom_prompt': True,
         'command_execution.hotkey': 'Ctrl+F7',
         'command_execution.prompt': (
-            'Break down the task into detailed steps using these action types for my automation app:\n'
-            '- **PowerShell**: For running PowerShell commands. (The command should work without modifications)\n'
-            '- **Hotkey**: For simulating key combinations.\n'
-            '- **Wait**: For delays in seconds. (only use when needed. example: when opening apps/sites to execute actions)\n'
-            "- **Clipboard**: For copying or pasting text. (Example: Clipboard: Copy 'text')\n"
-            'Output steps as "1. ActionType: Details." (Use default browser if not specified like Start-Process "URL") Avoid extra conditions or instructions. If '
-            'not possible, respond with "This action is impossible because [reason]."'
-            'Example:\n'
+            'Break down the task into steps using these action types (Windows environment):\n'
+            '- **PowerShell**: Execute commands (no placeholders, instead for example $env:USERNAME). Ensure correct '
+            'placement of " around arguments. Make command 100% work first time\n'
+            '- **Hotkey**: For key combinations.\n'
+            '- **Wait**: For delays in seconds (only when needed).\n'
+            "- **Clipboard**: For copying or pasting text (Example: Clipboard: Copy 'text').\n"
+            'Output steps as "1. ActionType: Details." (Use default browser for URLs). If impossible, say "This '
+            'action is impossible because [reason]."\n'
+            'Example 1:\n'
             '- Task: "Skip to the next song on Spotify."\n'
             '  1. PowerShell: Start-Process "$env:APPDATA\Spotify\Spotify.exe"\n'
             '  2. Wait: 2\n'
             '  3. Hotkey: CTRL+RIGHT\n'
+            'Example 2:\n'
+            '- Task: "open recycle bin"\n'
+            '  1. PowerShell: Start-Process "explorer.exe" "shell:RecycleBinFolder"\n'
             'Task:'
         ),
         'auto_select_text': False,
