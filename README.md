@@ -34,6 +34,7 @@
 ## Demo
 ![demo_1](demos/fix_demo_1.gif)
 ![demo_2](demos/fix_demo_2.gif)
+![demo_2](demos/fix_demo_3.gif)
 
 ## Installation
 
