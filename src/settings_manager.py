@@ -61,6 +61,12 @@ class SettingsManager:
             '  1. PowerShell: Start-Process "explorer.exe" "shell:RecycleBinFolder"\n'
             'Task:'
         ),
+        'voice_control.enabled': False,
+        'voice_control.trigger_name': 'Jerome',
+        'voice_control.fix_module': True,
+        'voice_control.rephrase_module': True,
+        'voice_control.translate_module': True,
+        'voice_control.command_execution_module': True,
         'auto_select_text': False,
         'provider_api_key': '',
         'api_endpoint': 'https://openrouter.ai/api/v1/chat/completions',
