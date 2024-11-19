@@ -11,6 +11,8 @@ from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox
 
+from src.command_executer import CommandExecutor
+
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     handlers=[
@@ -664,50 +666,16 @@ class AutocorrectService:
 
     def execute_command(self, command_text):
         try:
-            prompt = self.settings.get_setting('command_execution.prompt') + command_text
 
-            try:
-                response_data = self.make_api_request(prompt)
-                command = response_data['choices'][0]['message']['content'].strip()
+            executor = CommandExecutor(make_api_request=self.make_api_request,
+                                       settings=self.settings,
+                                       logger=logger)
 
-                if "This action is impossible" in command:
-                    reason_start = command.find("because")
-                    reason = command[reason_start:] if reason_start != -1 else "No reason provided."
-
-                    QMessageBox.warning(None, "Command Execution",
-                                        f"This action cannot be performed. Reason: {reason}")
-                    return
-
-                dangerous_patterns = [
-                    (r'(rm|remove-item|del)\s+-r(?:ecurse)?\s+.*(system32|windows\\system)',
-                     'Critical system directory deletion'),
-                    (r'format\s+[a-zA-Z]:', 'Drive formatting'),
-                    (r'reg\s+delete\s+HKLM\\SOFTWARE\\Microsoft', 'Critical registry deletion'),
-                    (r'rmdir\s+/s\s+.*windows', 'Windows directory deletion')
-                ]
-
-                for pattern, description in dangerous_patterns:
-                    if re.search(pattern, command.lower()):
-                        QMessageBox.warning(None, "Command Execution",
-                                            f"Blocked dangerous operation: {description}")
-                        return
-
-                print(command)
-                import subprocess
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                si.wShowWindow = 0
-
-                subprocess.Popen(['powershell.exe', '-Command', command],
-                                 startupinfo=si, creationflags=subprocess.CREATE_NEW_CONSOLE)
-
-            except Exception as e:
-                logger.error(f"Error in API communication or command execution: {str(e)}")
-                QMessageBox.critical(None, "Error",
-                                     f"Failed to execute command: {str(e)}")
-
+            executor.execute_command(command_text)
         except Exception as e:
             logger.error(f"Error in execute_command: {str(e)}")
+            QMessageBox.critical(None, "Error",
+                                 f"An unexpected error occurred: {str(e)}")
 
     def handle_custom_prompt_hotkey(self):
         try:
