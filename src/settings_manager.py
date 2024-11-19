@@ -44,7 +44,7 @@ class SettingsManager:
         'command_execution.hotkey': 'Ctrl+F7',
         'command_execution.prompt': (
             'Break down the task into steps using these action types (Windows environment):\n'
-            '- **PowerShell**: Execute commands (no placeholders, instead for example $env:USERNAME). Ensure correct '
+            '- **PowerShell**: Execute commands (no placeholders, instead if needed for example $env:USERNAME). Ensure correct '
             'placement of " around arguments. Make command 100% work first time\n'
             '- **Hotkey**: For key combinations.\n'
             '- **Wait**: For delays in seconds (only when needed).\n'
@@ -65,7 +65,7 @@ class SettingsManager:
         'voice_control.trigger_name': 'Peter',
         'voice_control.language': 'en-US',
         'voice_control.microphone': None,
-        'voice_control.pause_seconds': 3,
+        'voice_control.pause_seconds': 2,
         'voice_control.fix_module': True,
         'voice_control.question_module': True,
         'voice_control.rephrase_module': True,

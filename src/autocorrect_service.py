@@ -7,9 +7,10 @@ import logging
 import keyboard
 import re
 import tiktoken
-from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
+from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread, QTimer
 from PyQt6.QtGui import QPainter, QColor, QCursor
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox, \
+    QLabel, QWidget
 
 import speech_recognition as sr
 import pyttsx3
@@ -46,6 +47,18 @@ class VoiceControl:
         self.stop_listening = False
         self.engine = pyttsx3.init()
 
+        self.notification_worker = VoiceNotificationWorker()
+        self.notification_thread = QThread()
+        self.notification_worker.moveToThread(self.notification_thread)
+
+        self.notification_popup = VoiceNotificationPopup()
+
+        self.notification_worker.show_notification.connect(
+            self.notification_popup.show_notification
+        )
+
+        self.notification_thread.start()
+
     def speak(self, text):
         self.engine.say(text)
         self.engine.runAndWait()
@@ -54,9 +67,8 @@ class VoiceControl:
         pause_time = self.settings.get_setting('voice_control.pause_settings', 3)
         with sr.Microphone(device_index=self.microphone_device) as source:
             self.recognizer.adjust_for_ambient_noise(source)
-            print("Listening continuously...")
 
-            while not self.stop_listening:
+            while not self.stop_listening and self.settings.get_setting("voice_control.enabled", False):
                 try:
 
                     audio = self.recognizer.listen(source, timeout=None, phrase_time_limit=None)
@@ -64,12 +76,14 @@ class VoiceControl:
                     try:
                         text = self.recognizer.recognize_google(audio, language=self.language)
                         print(f"Heard: {text}")
-
+                        if text.lower() == "stop" or text.lower() == "stopp":
+                            self.speak("Ok cancelled")
+                            break
 
                         trigger = self.service.settings.get_setting('voice_control.trigger_name', 'fix').lower()
                         if trigger in text.lower():
                             print(f"Trigger word '{trigger}' detected. Processing command...")
-
+                            self.notification_worker.show_notification.emit(text, 3000)
 
                             command_text = text.lower().replace(trigger, '').strip()
 
@@ -109,6 +123,7 @@ class VoiceControl:
         print(f"Detected Action Type: {action_type}")
 
         if action_type == 'translate' and self.settings.get_setting('voice_control.translate_module'):
+            self.notification_worker.show_notification.emit("Translating...", 3000)
             self.handle_translation_hotkey()
 
         elif action_type == 'mark' and self.settings.get_setting('voice_control.fix_module'):
@@ -117,22 +132,21 @@ class VoiceControl:
                 controller.press('a')
                 controller.release('a')
 
-        elif action_type in ['expand', 'rephrase'] and self.settings.get_setting('voice_control.rephrase_module'):
-            custom_prompt = f"{action_type.capitalize()}: Modify the text to {action_type} while preserving tone and correcting spelling, grammar, punctuation, and capitalization."
-            self.last_prompt = custom_prompt
-            self.handle_custom_prompt_hotkey()
-
         elif action_type == 'command' and self.settings.get_setting('voice_control.command_execution_module'):
+            self.notification_worker.show_notification.emit("Executing task...", 3000)
             self.execute_command(command)
 
         elif action_type == 'fix' and self.settings.get_setting('voice_control.fix_module'):
+            self.notification_worker.show_notification.emit("Fixing text...", 3000)
             self.fix_text()
 
         elif action_type == 'question' and self.settings.get_setting('voice_control.question_module'):
-            response_data = self.make_api_request(command + " (short answer pls)")
+            self.notification_worker.show_notification.emit("Thinking...", 4000)
+            response_data = self.make_api_request(command + " (very short answer and no markdown)")
             response = response_data['choices'][0]['message']['content'].strip().lower()
-            self.speak(response)
+            self.notification_worker.show_notification.emit(response, 7000)
             print(response)
+            self.speak(response)
 
         return True
 
@@ -147,9 +161,9 @@ class VoiceControl:
     def detect_voice_command_type(self, command_text):
         prompt = (
             "Analyze the voice command (language doesn't matter). Return ONE action type (what the user wants to do): "
-            "'translate', 'mark', 'rephrase', 'expand', 'shorten', 'command', 'fix', 'question', 'none'. "
-            "Use 'command' for PC actions like opening apps/browsers or system interactions. "
-            "Use 'translate', 'fix', 'expand' or 'rephrase' for text modification actions. "
+            "'translate', 'mark', 'command', 'fix', 'question', 'none'. "
+            "Use 'command' for PC actions like opening apps/browsers or system interactions (or pressing hotkeys). "
+            "Use 'translate', or 'fix', for text modification actions (like: translate the marked text). "
             "Use 'question', if user wants to know something"
             f"(Answer only with type) Users command: {command_text}"
         )
@@ -162,9 +176,64 @@ class VoiceControl:
             logger.error(f"Error detecting command type: {str(e)}")
             return 'none'
 
+
+class VoiceNotificationPopup(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.WindowStaysOnTopHint |
+            Qt.WindowType.Tool
+        )
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        self.label = QLabel(self)
+        self.label.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+            }
+        """)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        screen = QApplication.primaryScreen().geometry()
+        self.label.setFixedSize(320, 80)
+        self.label.setWordWrap(True)
+
+
+        self.setGeometry(
+            screen.width() - 400,
+            screen.height() - 150,
+            350,
+            100
+        )
+
+        self.hide_timer = QTimer(self)
+        self.hide_timer.setSingleShot(True)
+        self.hide_timer.timeout.connect(self.hide)
+
+    def show_notification(self, text, duration=3000):
+        self.label.setText(text)
+        self.show()
+        self.hide_timer.start(duration)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QColor(30, 30, 30, 180))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRoundedRect(self.rect(), 15, 15)
+
+class VoiceNotificationWorker(QObject):
+    show_notification = pyqtSignal(str, int)
+
 class Worker(QObject):
     show_dialog = pyqtSignal(str)
     show_command_dialog = pyqtSignal(str)
+    show_notification = pyqtSignal(str, int)
     def handle_custom_prompt(self, selected_text):
         try:
             self.show_dialog.emit(selected_text)
