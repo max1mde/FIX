@@ -671,9 +671,26 @@ class AutocorrectService:
                 command = response_data['choices'][0]['message']['content'].strip()
 
                 if "This action is impossible" in command:
+                    reason_start = command.find("because")
+                    reason = command[reason_start:] if reason_start != -1 else "No reason provided."
+
                     QMessageBox.warning(None, "Command Execution",
-                                        "This action cannot be performed or might be dangerous.")
+                                        f"This action cannot be performed. Reason: {reason}")
                     return
+
+                dangerous_patterns = [
+                    (r'(rm|remove-item|del)\s+-r(?:ecurse)?\s+.*(system32|windows\\system)',
+                     'Critical system directory deletion'),
+                    (r'format\s+[a-zA-Z]:', 'Drive formatting'),
+                    (r'reg\s+delete\s+HKLM\\SOFTWARE\\Microsoft', 'Critical registry deletion'),
+                    (r'rmdir\s+/s\s+.*windows', 'Windows directory deletion')
+                ]
+
+                for pattern, description in dangerous_patterns:
+                    if re.search(pattern, command.lower()):
+                        QMessageBox.warning(None, "Command Execution",
+                                            f"Blocked dangerous operation: {description}")
+                        return
 
                 print(command)
                 import subprocess
