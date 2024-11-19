@@ -51,7 +51,7 @@ class VoiceControl:
         self.engine.runAndWait()
 
     def recognize_speech(self):
-        pause_time = 4
+        pause_time = self.settings.get_setting('voice_control.pause_settings', 3)
         with sr.Microphone(device_index=self.microphone_device) as source:
             self.recognizer.adjust_for_ambient_noise(source)
             print("Listening continuously...")
@@ -128,7 +128,7 @@ class VoiceControl:
         elif action_type == 'fix' and self.settings.get_setting('voice_control.fix_module'):
             self.fix_text()
 
-        elif action_type == 'question':
+        elif action_type == 'question' and self.settings.get_setting('voice_control.question_module'):
             response_data = self.make_api_request(command + " (short answer pls)")
             response = response_data['choices'][0]['message']['content'].strip().lower()
             self.speak(response)

@@ -222,6 +222,14 @@ class VoiceControlModuleWindow(QDialog):
         self.voice_control_enabled.stateChanged.connect(self.mark_modified)
         layout.addWidget(self.voice_control_enabled)
 
+        pause_seconds_layout = QHBoxLayout()
+        pause_seconds_label = QLabel("Pause seconds:")
+        self.pause_seconds_input = QLineEdit()
+        self.pause_seconds_input.textChanged.connect(self.mark_modified)
+        pause_seconds_layout.addWidget(pause_seconds_label)
+        pause_seconds_layout.addWidget(self.pause_seconds_input)
+        layout.addLayout(pause_seconds_layout)
+
         trigger_name_layout = QHBoxLayout()
         trigger_name_label = QLabel("Voice Trigger Name:")
         self.trigger_name_input = QLineEdit()
@@ -259,12 +267,13 @@ class VoiceControlModuleWindow(QDialog):
         module_group = QGroupBox("Enable Voice Control for Modules")
         module_layout = QVBoxLayout()
 
+        self.question_module = QCheckBox("Question Module")
         self.fix_module = QCheckBox("Fix Module")
         self.rephrase_module = QCheckBox("Rephrase Module")
         self.translate_module = QCheckBox("Translate Module")
         self.command_execution_module = QCheckBox("Command Execution Module")
 
-        for widget in [self.fix_module, self.rephrase_module,
+        for widget in [self.question_module, self.fix_module, self.rephrase_module,
                        self.translate_module, self.command_execution_module]:
             widget.stateChanged.connect(self.mark_modified)
             module_layout.addWidget(widget)
@@ -283,6 +292,9 @@ class VoiceControlModuleWindow(QDialog):
         self.trigger_name_input.setText(
             self.settings.get_setting('voice_control.trigger_name', 'Jerome')
         )
+        self.pause_seconds_input.setText(
+            self.settings.get_setting('voice_control.pause_seconds', 3)
+        )
         self.fix_module.setChecked(
             self.settings.get_setting('voice_control.fix_module', True)
         )
@@ -294,6 +306,10 @@ class VoiceControlModuleWindow(QDialog):
         )
         self.command_execution_module.setChecked(
             self.settings.get_setting('voice_control.command_execution_module', True)
+        )
+
+        self.question_module.setChecked(
+            self.settings.get_setting('voice_control.question_module', True)
         )
 
         language = self.settings.get_setting('voice_control.language', 'en-US')
@@ -308,6 +324,8 @@ class VoiceControlModuleWindow(QDialog):
                                   self.voice_control_enabled.isChecked())
         self.settings.set_setting('voice_control.trigger_name',
                                   self.trigger_name_input.text())
+        self.settings.set_setting('voice_control.pause_seconds',
+                                  self.pause_seconds_input.text())
         self.settings.set_setting(
             'voice_control.language',
             self.language_combobox.currentText()
@@ -322,6 +340,8 @@ class VoiceControlModuleWindow(QDialog):
                                   self.translate_module.isChecked())
         self.settings.set_setting('voice_control.command_execution_module',
                                   self.command_execution_module.isChecked())
+        self.settings.set_setting('voice_control.question_module',
+                                  self.question_module.isChecked())
         self.settings_modified = False
         self.close()
 
