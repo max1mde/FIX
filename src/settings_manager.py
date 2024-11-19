@@ -43,12 +43,23 @@ class SettingsManager:
         'custom_prompt.auto_custom_prompt': True,
         'command_execution.hotkey': 'Ctrl+F7',
         'command_execution.prompt': (
-            'Convert this command to a PowerShell script. If impossible or really dangerous / destructive, respond with '
-            '"This action is impossible because [reason]". Output only the command. Do not include explanations, notes, or instructions. '
-            'Examples:\n'
-            '- "open discord" → Start-Process "C:\\Users\\$env:USERNAME\\AppData\\Local\\Discord\\Update.exe" --processStart Discord.exe\n'
-            '- "shutdown in 30 minutes" → shutdown.exe /s /t 1800\n'
-            'Convert this:'
+            'Break down the task into steps using these action types (Windows environment):\n'
+            '- **PowerShell**: Execute commands (no placeholders, instead for example $env:USERNAME). Ensure correct '
+            'placement of " around arguments. Make command 100% work first time\n'
+            '- **Hotkey**: For key combinations.\n'
+            '- **Wait**: For delays in seconds (only when needed).\n'
+            "- **Clipboard**: For copying or pasting text (Example: Clipboard: Copy 'text').\n"
+            'Output steps as "1. ActionType: Details." (Use default browser for URLs). If impossible, say "This '
+            'action is impossible because [reason]."\n'
+            'Example 1:\n'
+            '- Task: "Skip to the next song on Spotify."\n'
+            '  1. PowerShell: Start-Process "$env:APPDATA\Spotify\Spotify.exe"\n'
+            '  2. Wait: 2\n'
+            '  3. Hotkey: CTRL+RIGHT\n'
+            'Example 2:\n'
+            '- Task: "open recycle bin"\n'
+            '  1. PowerShell: Start-Process "explorer.exe" "shell:RecycleBinFolder"\n'
+            'Task:'
         ),
         'auto_select_text': False,
         'provider_api_key': '',
