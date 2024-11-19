@@ -3,11 +3,11 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QIcon
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QCheckBox, QLineEdit, QLabel, QPushButton, QDialog,
-                             QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem)
+                             QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem, QComboBox)
 
 
-window_height = 670
-window_width = 350
+window_height = 710
+window_width = 360
 
 class ConfirmationDialog(QDialog):
     def __init__(self, message, parent=None):
@@ -204,6 +204,149 @@ class TranslateModuleWindow(QDialog):
     def mark_modified(self):
         self.settings_modified = True
 
+
+class VoiceControlModuleWindow(QDialog):
+    def __init__(self, settings_manager, parent=None):
+        super().__init__(parent)
+        self.settings = settings_manager
+        self.setWindowTitle("Voice Control Module Settings")
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setup_ui()
+        self.load_settings()
+        self.settings_modified = False
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.voice_control_enabled = QCheckBox("Enable Voice Control")
+        self.voice_control_enabled.stateChanged.connect(self.mark_modified)
+        layout.addWidget(self.voice_control_enabled)
+
+        pause_seconds_layout = QHBoxLayout()
+        pause_seconds_label = QLabel("Pause seconds:")
+        self.pause_seconds_input = QLineEdit()
+        self.pause_seconds_input.textChanged.connect(self.mark_modified)
+        pause_seconds_layout.addWidget(pause_seconds_label)
+        pause_seconds_layout.addWidget(self.pause_seconds_input)
+        layout.addLayout(pause_seconds_layout)
+
+        trigger_name_layout = QHBoxLayout()
+        trigger_name_label = QLabel("Voice Trigger Name:")
+        self.trigger_name_input = QLineEdit()
+        self.trigger_name_input.textChanged.connect(self.mark_modified)
+        trigger_name_layout.addWidget(trigger_name_label)
+        trigger_name_layout.addWidget(self.trigger_name_input)
+        layout.addLayout(trigger_name_layout)
+
+        language_layout = QHBoxLayout()
+        language_label = QLabel("Speech Recognition Language:")
+        self.language_combobox = QComboBox()
+        self.language_combobox.addItems([
+            'en-US', 'en-GB', 'de-DE', 'fr-FR', 'es-ES', 'it-IT',
+            'zh-CN', 'ja-JP', 'ru-RU', 'ar-SA'
+        ])
+        self.language_combobox.currentTextChanged.connect(self.mark_modified)
+        language_layout.addWidget(language_label)
+        language_layout.addWidget(self.language_combobox)
+        layout.addLayout(language_layout)
+
+        microphone_layout = QHBoxLayout()
+        microphone_label = QLabel("Microphone Device:")
+        self.microphone_combobox = QComboBox()
+
+
+        import speech_recognition as sr
+        for i, mic in enumerate(sr.Microphone.list_microphone_names()):
+            self.microphone_combobox.addItem(mic, i)
+
+        self.microphone_combobox.currentIndexChanged.connect(self.mark_modified)
+        microphone_layout.addWidget(microphone_label)
+        microphone_layout.addWidget(self.microphone_combobox)
+        layout.addLayout(microphone_layout)
+
+        module_group = QGroupBox("Enable Voice Control for Modules")
+        module_layout = QVBoxLayout()
+
+        self.question_module = QCheckBox("Question Module")
+        self.fix_module = QCheckBox("Fix Module")
+        self.rephrase_module = QCheckBox("Rephrase Module")
+        self.translate_module = QCheckBox("Translate Module")
+        self.command_execution_module = QCheckBox("Command Execution Module")
+
+        for widget in [self.question_module, self.fix_module, self.rephrase_module,
+                       self.translate_module, self.command_execution_module]:
+            widget.stateChanged.connect(self.mark_modified)
+            module_layout.addWidget(widget)
+
+        module_group.setLayout(module_layout)
+        layout.addWidget(module_group)
+
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_settings)
+        layout.addWidget(save_btn)
+
+    def load_settings(self):
+        self.voice_control_enabled.setChecked(
+            self.settings.get_setting('voice_control.enabled', False)
+        )
+        self.trigger_name_input.setText(
+            self.settings.get_setting('voice_control.trigger_name', 'Jerome')
+        )
+        self.pause_seconds_input.setText(
+            str(self.settings.get_setting('voice_control.pause_seconds', 3))
+        )
+        self.fix_module.setChecked(
+            self.settings.get_setting('voice_control.fix_module', True)
+        )
+        self.rephrase_module.setChecked(
+            self.settings.get_setting('voice_control.rephrase_module', True)
+        )
+        self.translate_module.setChecked(
+            self.settings.get_setting('voice_control.translate_module', True)
+        )
+        self.command_execution_module.setChecked(
+            self.settings.get_setting('voice_control.command_execution_module', True)
+        )
+
+        self.question_module.setChecked(
+            self.settings.get_setting('voice_control.question_module', True)
+        )
+
+        language = self.settings.get_setting('voice_control.language', 'en-US')
+        self.language_combobox.setCurrentText(language)
+
+        microphone = self.settings.get_setting('voice_control.microphone', None)
+        if microphone is not None:
+            self.microphone_combobox.setCurrentIndex(microphone)
+
+    def save_settings(self):
+        self.settings.set_setting('voice_control.enabled',
+                                  self.voice_control_enabled.isChecked())
+        self.settings.set_setting('voice_control.trigger_name',
+                                  self.trigger_name_input.text())
+        self.settings.set_setting('voice_control.pause_seconds',
+                                  int(self.pause_seconds_input.text()))
+        self.settings.set_setting(
+            'voice_control.language',
+            self.language_combobox.currentText()
+        )
+        self.settings.set_setting('voice_control.microphone',
+            self.microphone_combobox.currentData())
+        self.settings.set_setting('voice_control.fix_module',
+                                  self.fix_module.isChecked())
+        self.settings.set_setting('voice_control.rephrase_module',
+                                  self.rephrase_module.isChecked())
+        self.settings.set_setting('voice_control.translate_module',
+                                  self.translate_module.isChecked())
+        self.settings.set_setting('voice_control.command_execution_module',
+                                  self.command_execution_module.isChecked())
+        self.settings.set_setting('voice_control.question_module',
+                                  self.question_module.isChecked())
+        self.settings_modified = False
+        self.close()
+
+    def mark_modified(self):
+        self.settings_modified = True
 
 class CommandExecutionModuleWindow(QDialog):
     def __init__(self, settings_manager, parent=None):
@@ -486,6 +629,10 @@ class SettingsWindow(QMainWindow):
         command_execution_btn.clicked.connect(self.show_command_execution_settings)
         modules_layout.addWidget(command_execution_btn)
 
+        voice_control_btn = QPushButton("Voice Control Module Settings")
+        voice_control_btn.clicked.connect(self.show_voice_control_settings)
+        modules_layout.addWidget(voice_control_btn)
+
         modules_group.setLayout(modules_layout)
         layout.addWidget(modules_group)
 
@@ -595,6 +742,10 @@ class SettingsWindow(QMainWindow):
 
     def show_command_execution_settings(self):
         dialog = CommandExecutionModuleWindow(self.settings, self)
+        dialog.exec()
+
+    def show_voice_control_settings(self):
+        dialog = VoiceControlModuleWindow(self.settings, self)
         dialog.exec()
 
     def show_replacements(self):

@@ -7,9 +7,15 @@ import logging
 import keyboard
 import re
 import tiktoken
-from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
+from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread, QTimer
 from PyQt6.QtGui import QPainter, QColor, QCursor
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox, \
+    QLabel, QWidget
+
+import speech_recognition as sr
+import pyttsx3
+import threading
+import queue
 
 from command_executer import CommandExecutor
 
@@ -24,9 +30,210 @@ logger = logging.getLogger(__name__)
 controller = Controller()
 
 
+class VoiceControl:
+    def __init__(self, autocorrect_service, settings, handle_translation_hotkey, fix_text, execute_command, handle_custom_prompt_hotkey, make_api_request):
+        self.service = autocorrect_service
+        self.settings = settings
+        self.handle_translation_hotkey = handle_translation_hotkey
+        self.fix_text = fix_text
+        self.make_api_request = make_api_request
+        self.execute_command = execute_command
+        self.handle_custom_prompt_hotkey = handle_custom_prompt_hotkey
+        self.recognizer = sr.Recognizer()
+        self.microphone = sr.Microphone()
+        self.language = self.settings.get_setting('voice_control.language', 'en-US')
+        self.microphone_device = self.settings.get_setting('voice_control.microphone', None)
+        self.text_queue = queue.Queue()
+        self.stop_listening = False
+        self.engine = pyttsx3.init()
+
+        self.notification_worker = VoiceNotificationWorker()
+        self.notification_thread = QThread()
+        self.notification_worker.moveToThread(self.notification_thread)
+
+        self.notification_popup = VoiceNotificationPopup()
+
+        self.notification_worker.show_notification.connect(
+            self.notification_popup.show_notification
+        )
+
+        self.notification_thread.start()
+
+    def speak(self, text):
+        self.engine.say(text)
+        self.engine.runAndWait()
+
+    def recognize_speech(self):
+        pause_time = self.settings.get_setting('voice_control.pause_settings', 3)
+        with sr.Microphone(device_index=self.microphone_device) as source:
+            self.recognizer.adjust_for_ambient_noise(source)
+
+            while not self.stop_listening and self.settings.get_setting("voice_control.enabled", False):
+                try:
+
+                    audio = self.recognizer.listen(source, timeout=None, phrase_time_limit=None)
+
+                    try:
+                        text = self.recognizer.recognize_google(audio, language=self.language)
+                        print(f"Heard: {text}")
+                        if text.lower() == "stop" or text.lower() == "stopp":
+                            self.speak("Ok cancelled")
+                            break
+
+                        trigger = self.service.settings.get_setting('voice_control.trigger_name', 'fix').lower()
+                        if trigger in text.lower():
+                            print(f"Trigger word '{trigger}' detected. Processing command...")
+                            self.notification_worker.show_notification.emit(text, 3000)
+
+                            command_text = text.lower().replace(trigger, '').strip()
+
+
+                            start_time = time.time()
+                            while True:
+                                try:
+
+                                    additional_audio = self.recognizer.listen(source, timeout=4, phrase_time_limit=None)
+
+                                    try:
+                                        additional_text = self.recognizer.recognize_google(additional_audio,
+                                                                                           language=self.language)
+                                        command_text += " " + additional_text.lower()
+                                        print(f"Command so far: {command_text}")
+                                        start_time = time.time()
+                                    except sr.UnknownValueError:
+                                        if time.time() - start_time > pause_time:
+                                            break
+                                except sr.WaitTimeoutError:
+                                    break
+
+                            print(f"Full Command: {command_text}")
+                            self.process_voice_command(command_text)
+
+                    except sr.UnknownValueError:
+                        pass
+                    except sr.RequestError as e:
+                        print(f"Could not request results; {e}")
+
+                except Exception as e:
+                    print(f"Unexpected error in speech recognition: {e}")
+
+    def process_voice_command(self, command):
+
+        action_type = self.detect_voice_command_type(command)
+        print(f"Detected Action Type: {action_type}")
+
+        if action_type == 'translate' and self.settings.get_setting('voice_control.translate_module'):
+            self.notification_worker.show_notification.emit("Translating...", 3000)
+            self.handle_translation_hotkey()
+
+        elif action_type == 'mark' and self.settings.get_setting('voice_control.fix_module'):
+            controller = Controller()
+            with controller.pressed(Key.ctrl):
+                controller.press('a')
+                controller.release('a')
+
+        elif action_type == 'command' and self.settings.get_setting('voice_control.command_execution_module'):
+            self.notification_worker.show_notification.emit("Executing task...", 3000)
+            self.execute_command(command)
+
+        elif action_type == 'fix' and self.settings.get_setting('voice_control.fix_module'):
+            self.notification_worker.show_notification.emit("Fixing text...", 3000)
+            self.fix_text()
+
+        elif action_type == 'question' and self.settings.get_setting('voice_control.question_module'):
+            self.notification_worker.show_notification.emit("Thinking...", 4000)
+            response_data = self.make_api_request(command + " (very short answer and no markdown)")
+            response = response_data['choices'][0]['message']['content'].strip().lower()
+            self.notification_worker.show_notification.emit(response, 7000)
+            print(response)
+            self.speak(response)
+
+        return True
+
+
+    def start(self):
+        self.stop_listening = False
+        threading.Thread(target=self.recognize_speech, daemon=True).start()
+
+    def stop(self):
+        self.stop_listening = True
+
+    def detect_voice_command_type(self, command_text):
+        prompt = (
+            "Analyze the voice command (language doesn't matter). Return ONE action type (what the user wants to do): "
+            "'translate', 'mark', 'command', 'fix', 'question', 'none'. "
+            "Use 'command' for PC actions like opening apps/browsers or system interactions (or pressing hotkeys). "
+            "Use 'translate', or 'fix', for text modification actions (like: translate the marked text). "
+            "Use 'question', if user wants to know something"
+            f"(Answer only with type) Users command: {command_text}"
+        )
+
+        try:
+            response_data = self.make_api_request(prompt)
+            action_type = response_data['choices'][0]['message']['content'].strip().lower()
+            return action_type
+        except Exception as e:
+            logger.error(f"Error detecting command type: {str(e)}")
+            return 'none'
+
+
+class VoiceNotificationPopup(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.WindowStaysOnTopHint |
+            Qt.WindowType.Tool
+        )
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        self.label = QLabel(self)
+        self.label.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+            }
+        """)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        screen = QApplication.primaryScreen().geometry()
+        self.label.setFixedSize(320, 80)
+        self.label.setWordWrap(True)
+
+
+        self.setGeometry(
+            screen.width() - 400,
+            screen.height() - 150,
+            350,
+            100
+        )
+
+        self.hide_timer = QTimer(self)
+        self.hide_timer.setSingleShot(True)
+        self.hide_timer.timeout.connect(self.hide)
+
+    def show_notification(self, text, duration=3000):
+        self.label.setText(text)
+        self.show()
+        self.hide_timer.start(duration)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QColor(30, 30, 30, 180))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRoundedRect(self.rect(), 15, 15)
+
+class VoiceNotificationWorker(QObject):
+    show_notification = pyqtSignal(str, int)
+
 class Worker(QObject):
     show_dialog = pyqtSignal(str)
     show_command_dialog = pyqtSignal(str)
+    show_notification = pyqtSignal(str, int)
     def handle_custom_prompt(self, selected_text):
         try:
             self.show_dialog.emit(selected_text)
@@ -427,6 +634,8 @@ class AutocorrectService:
             self.worker.show_command_dialog.connect(self.get_command_execution)
             self.worker_thread.start()
             self.setup_hotkeys()
+            self.voice_control = VoiceControl(self, self.settings, self.handle_translation_hotkey, self.fix_text, self.execute_command, self.handle_custom_prompt_hotkey, self.make_api_request)
+            self.voice_control.start()
         except Exception as e:
             logger.error(f"Error initializing AutocorrectService: {str(e)}")
 
@@ -758,6 +967,8 @@ class AutocorrectService:
             if self.worker_thread:
                 self.worker_thread.quit()
                 self.worker_thread.wait()
+            if hasattr(self, 'voice_control'):
+                self.voice_control.stop()
         except Exception as e:
             logger.error(f"Error in cleanup: {str(e)}")
 

@@ -44,7 +44,7 @@ class SettingsManager:
         'command_execution.hotkey': 'Ctrl+F7',
         'command_execution.prompt': (
             'Break down the task into steps using these action types (Windows environment):\n'
-            '- **PowerShell**: Execute commands (no placeholders, instead for example $env:USERNAME). Ensure correct '
+            '- **PowerShell**: Execute commands (no placeholders, instead if needed for example $env:USERNAME). Ensure correct '
             'placement of " around arguments. Make command 100% work first time\n'
             '- **Hotkey**: For key combinations.\n'
             '- **Wait**: For delays in seconds (only when needed).\n'
@@ -61,6 +61,16 @@ class SettingsManager:
             '  1. PowerShell: Start-Process "explorer.exe" "shell:RecycleBinFolder"\n'
             'Task:'
         ),
+        'voice_control.enabled': False,
+        'voice_control.trigger_name': 'Peter',
+        'voice_control.language': 'en-US',
+        'voice_control.microphone': None,
+        'voice_control.pause_seconds': 2,
+        'voice_control.fix_module': True,
+        'voice_control.question_module': True,
+        'voice_control.rephrase_module': True,
+        'voice_control.translate_module': True,
+        'voice_control.command_execution_module': True,
         'auto_select_text': False,
         'provider_api_key': '',
         'api_endpoint': 'https://openrouter.ai/api/v1/chat/completions',

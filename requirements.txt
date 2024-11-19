@@ -5,3 +5,6 @@ keyboard~=0.13.5
 pynput~=1.7.7
 tiktoken~=0.8.0
 Send2Trash~=1.8.3
+pyaudio~=0.2.14
+pyttsx3~=2.98
+SpeechRecognition~=3.11.0
