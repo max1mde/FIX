@@ -108,7 +108,7 @@ class CommandExecutionDialog(QDialog):
             "Open Recycle Bin": "open recycle bin",
             "Minimize windows": "minimize all windows",
             "Create and open file on desktop": "create a file on desktop called test.txt and open it",
-            "Lock PC": "lock pc",
+            "Skip spotify song": "skip spotify song",
             "Open device manager": "open the windows device manager app",
         }
 

@@ -99,13 +99,14 @@ class CommandExecutor:
         try:
             keys = hotkey_command.split('+')
 
+
             special_keys = {
                 'RIGHT': Key.right,
                 'LEFT': Key.left,
                 'UP': Key.up,
                 'DOWN': Key.down,
                 'ENTER': Key.enter,
-                'WIN': "windows",
+                'WIN': Key.cmd_l,
                 'ESC': Key.esc,
                 'TAB': Key.tab,
                 'BACKSPACE': Key.backspace,
@@ -135,24 +136,35 @@ class CommandExecutor:
                 'NUMLOCK': Key.num_lock,
             }
 
-            ctrl_pressed = 'CTRL' in keys
-            if ctrl_pressed:
-                with controller.pressed(Key.ctrl.value):
-                    for key in keys:
-                        if key.strip().upper() == 'CTRL':
-                            continue
 
-                        key = key.strip().upper()
+            keys = [key.strip().upper() for key in keys]
+
+            modifiers = {
+                'CTRL': Key.ctrl,
+                'ALT': Key.alt,
+                'SHIFT': Key.shift,
+                'WIN': Key.cmd_l
+            }
+            pressed_keys = []
+
+
+            for key in keys:
+                if key in modifiers:
+                    pressed_keys.append(modifiers[key])
+
+            with controller.pressed(*pressed_keys):
+                for key in keys:
+                    if key not in modifiers:
                         if key in special_keys:
                             controller.press(special_keys[key])
                             controller.release(special_keys[key])
                         else:
                             controller.press(key.lower())
                             controller.release(key.lower())
+
         except Exception as e:
             self.logger.error(f"Error executing hotkey: {hotkey_command}, Error: {str(e)}")
-            QMessageBox.critical(None, "Error",
-                                 f"Failed to execute hotkey: {hotkey_command}")
+            QMessageBox.critical(None, "Error", f"Failed to execute hotkey: {hotkey_command}")
 
     def wait(self, seconds):
         try:
