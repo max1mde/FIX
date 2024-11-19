@@ -112,6 +112,10 @@ class CommandExecutor:
                     QMessageBox.warning(None, "Error", f"Failed to move the file to the Recycle Bin: {str(e)}")
                     return
 
+        if 'Remove-Item' in command:
+            QMessageBox.warning(None, "Error", f"Blocked file removal")
+            return
+
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         si.wShowWindow = 0
