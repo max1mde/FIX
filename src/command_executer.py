@@ -126,7 +126,6 @@ class CommandExecutor:
         try:
             keys = hotkey_command.split('+')
 
-
             special_keys = {
                 'RIGHT': Key.right,
                 'LEFT': Key.left,

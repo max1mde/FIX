@@ -293,7 +293,7 @@ class VoiceControlModuleWindow(QDialog):
             self.settings.get_setting('voice_control.trigger_name', 'Jerome')
         )
         self.pause_seconds_input.setText(
-            self.settings.get_setting('voice_control.pause_seconds', 3)
+            str(self.settings.get_setting('voice_control.pause_seconds', 3))
         )
         self.fix_module.setChecked(
             self.settings.get_setting('voice_control.fix_module', True)
@@ -325,7 +325,7 @@ class VoiceControlModuleWindow(QDialog):
         self.settings.set_setting('voice_control.trigger_name',
                                   self.trigger_name_input.text())
         self.settings.set_setting('voice_control.pause_seconds',
-                                  self.pause_seconds_input.text())
+                                  int(self.pause_seconds_input.text()))
         self.settings.set_setting(
             'voice_control.language',
             self.language_combobox.currentText()
