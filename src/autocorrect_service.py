@@ -101,7 +101,7 @@ class CommandExecutionDialog(QDialog):
             }
         """)
         layout.addWidget(self.command_input)
-
+        self.command_input.setFocus()
         quick_actions = {
             "Open Recycle Bin": "open recycle bin",
             "Minimize windows": "minimize all windows",
@@ -169,6 +169,12 @@ class CommandExecutionDialog(QDialog):
         if event.button() == Qt.MouseButton.LeftButton:
             self.is_dragging = False
             event.accept()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.activateWindow()
+        self.command_input.setFocus()
+        QApplication.processEvents()
 
 
 class CustomPromptDialog(QDialog):
@@ -243,6 +249,7 @@ class CustomPromptDialog(QDialog):
                     }
                 """)
         layout.addWidget(self.prompt_input)
+        self.prompt_input.setFocus()
 
         if show_suggestions is not None:
 
@@ -376,6 +383,11 @@ class CustomPromptDialog(QDialog):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(self.rect(), 15, 15)
 
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.activateWindow()
+        self.prompt_input.setFocus()
+        QApplication.processEvents()
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.is_dragging = True
