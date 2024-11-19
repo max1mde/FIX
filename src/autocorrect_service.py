@@ -11,6 +11,11 @@ from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QObject, QThread
 from PyQt6.QtGui import QPainter, QColor, QCursor
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QApplication, QMessageBox
 
+import speech_recognition as sr
+import pyttsx3
+import threading
+import queue
+
 from command_executer import CommandExecutor
 
 logging.basicConfig(level=logging.INFO,
@@ -23,6 +28,139 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 controller = Controller()
 
+
+class VoiceControl:
+    def __init__(self, autocorrect_service, settings, handle_translation_hotkey, fix_text, execute_command, handle_custom_prompt_hotkey, make_api_request):
+        self.service = autocorrect_service
+        self.settings = settings
+        self.handle_translation_hotkey = handle_translation_hotkey
+        self.fix_text = fix_text
+        self.make_api_request = make_api_request
+        self.execute_command = execute_command
+        self.handle_custom_prompt_hotkey = handle_custom_prompt_hotkey
+        self.recognizer = sr.Recognizer()
+        self.microphone = sr.Microphone()
+        self.language = self.settings.get_setting('voice_control.language', 'en-US')
+        self.microphone_device = self.settings.get_setting('voice_control.microphone', None)
+        self.text_queue = queue.Queue()
+        self.stop_listening = False
+        self.engine = pyttsx3.init()
+
+    def speak(self, text):
+        self.engine.say(text)
+        self.engine.runAndWait()
+
+    def recognize_speech(self):
+        pause_time = 4
+        with sr.Microphone(device_index=self.microphone_device) as source:
+            self.recognizer.adjust_for_ambient_noise(source)
+            print("Listening continuously...")
+
+            while not self.stop_listening:
+                try:
+
+                    audio = self.recognizer.listen(source, timeout=None, phrase_time_limit=None)
+
+                    try:
+                        text = self.recognizer.recognize_google(audio, language=self.language)
+                        print(f"Heard: {text}")
+
+
+                        trigger = self.service.settings.get_setting('voice_control.trigger_name', 'fix').lower()
+                        if trigger in text.lower():
+                            print(f"Trigger word '{trigger}' detected. Processing command...")
+
+
+                            command_text = text.lower().replace(trigger, '').strip()
+
+
+                            start_time = time.time()
+                            while True:
+                                try:
+
+                                    additional_audio = self.recognizer.listen(source, timeout=4, phrase_time_limit=None)
+
+                                    try:
+                                        additional_text = self.recognizer.recognize_google(additional_audio,
+                                                                                           language=self.language)
+                                        command_text += " " + additional_text.lower()
+                                        print(f"Command so far: {command_text}")
+                                        start_time = time.time()
+                                    except sr.UnknownValueError:
+                                        if time.time() - start_time > pause_time:
+                                            break
+                                except sr.WaitTimeoutError:
+                                    break
+
+                            print(f"Full Command: {command_text}")
+                            self.process_voice_command(command_text)
+
+                    except sr.UnknownValueError:
+                        pass
+                    except sr.RequestError as e:
+                        print(f"Could not request results; {e}")
+
+                except Exception as e:
+                    print(f"Unexpected error in speech recognition: {e}")
+
+    def process_voice_command(self, command):
+
+        action_type = self.detect_voice_command_type(command)
+        print(f"Detected Action Type: {action_type}")
+
+        if action_type == 'translate' and self.settings.get_setting('voice_control.translate_module'):
+            self.handle_translation_hotkey()
+
+        elif action_type == 'mark' and self.settings.get_setting('voice_control.fix_module'):
+            controller = Controller()
+            with controller.pressed(Key.ctrl):
+                controller.press('a')
+                controller.release('a')
+
+        elif action_type in ['expand', 'rephrase'] and self.settings.get_setting('voice_control.rephrase_module'):
+            custom_prompt = f"{action_type.capitalize()}: Modify the text to {action_type} while preserving tone and correcting spelling, grammar, punctuation, and capitalization."
+            self.last_prompt = custom_prompt
+            self.handle_custom_prompt_hotkey()
+
+        elif action_type == 'command' and self.settings.get_setting('voice_control.command_execution_module'):
+            self.execute_command(command)
+
+        elif action_type == 'fix' and self.settings.get_setting('voice_control.fix_module'):
+            self.fix_text()
+
+        elif action_type == 'question':
+            response_data = self.make_api_request(command + " (short answer pls)")
+            response = response_data['choices'][0]['message']['content'].strip().lower()
+            self.speak(response)
+            print(response)
+
+        return True
+
+
+    def start(self):
+        self.stop_listening = False
+        threading.Thread(target=self.recognize_speech, daemon=True).start()
+
+    def stop(self):
+        self.stop_listening = True
+
+    def detect_voice_command_type(self, command_text):
+        prompt = (
+            "Analyze the voice command (language doesn't matter). Return ONE action type (what the user wants to do): "
+            "'translate', 'mark', 'rephrase', 'expand', 'shorten', 'command', 'fix', 'question', 'none'. "
+            "Use 'command' for PC actions like opening apps/browsers or system interactions. "
+            "Use 'translate', 'fix', 'expand' or 'rephrase' for text modification actions. "
+            "Use 'question', if user wants to know something"
+            f"(Answer only with type) Users command: {command_text}"
+        )
+
+        try:
+            response_data = self.make_api_request(prompt)
+            action_type = response_data['choices'][0]['message']['content'].strip().lower()
+            return action_type
+        except Exception as e:
+            logger.error(f"Error detecting command type: {str(e)}")
+            return 'none'
 
 class Worker(QObject):
     show_dialog = pyqtSignal(str)
@@ -427,6 +565,8 @@ class AutocorrectService:
             self.worker.show_command_dialog.connect(self.get_command_execution)
             self.worker_thread.start()
             self.setup_hotkeys()
+            self.voice_control = VoiceControl(self, self.settings, self.handle_translation_hotkey, self.fix_text, self.execute_command, self.handle_custom_prompt_hotkey, self.make_api_request)
+            self.voice_control.start()
         except Exception as e:
             logger.error(f"Error initializing AutocorrectService: {str(e)}")
 
@@ -758,6 +898,8 @@ class AutocorrectService:
             if self.worker_thread:
                 self.worker_thread.quit()
                 self.worker_thread.wait()
+            if hasattr(self, 'voice_control'):
+                self.voice_control.stop()
         except Exception as e:
             logger.error(f"Error in cleanup: {str(e)}")
 

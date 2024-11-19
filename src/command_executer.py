@@ -4,8 +4,8 @@ import subprocess
 import time
 import pyperclip
 from pynput.keyboard import Key, Controller
-from PyQt6.QtWidgets import QMessageBox
 from send2trash import send2trash
+import pyttsx3
 
 controller = Controller()
 
@@ -16,7 +16,11 @@ class CommandExecutor:
         self.settings = settings
         self.logger = logger
         self.max_tasks = 30 # TODO implement
+        self.engine = pyttsx3.init()
 
+    def speak(self, text):
+        self.engine.say(text)
+        self.engine.runAndWait()
     def execute_command(self, command_text):
         try:
             print("\nA task was requested: " + command_text)
@@ -30,8 +34,7 @@ class CommandExecutor:
 
         except Exception as e:
             self.logger.error(f"Error in execute_command: {str(e)}")
-            QMessageBox.critical(None, "Error",
-                                 f"Failed to execute command: {str(e)}")
+            self.speak(f"Failed to execute command: {str(e)}")
 
     def generate_steps(self, task_description):
 
@@ -46,8 +49,7 @@ class CommandExecutor:
             steps = [re.sub(r'^\d+\.\s*', '', step).strip() for step in steps]
         except Exception as e:
             self.logger.error(f"Error generating steps: {str(e)}")
-            QMessageBox.critical(None, "Error",
-                                 f"Failed to generate steps: {str(e)}")
+            self.speak(f"Failed to generate steps: {str(e)}")
         return steps
 
     def execute_step(self, step):
@@ -67,13 +69,11 @@ class CommandExecutor:
                 self.run_clipboard(clipboard_command)
             else:
                 self.logger.error(f"Unknown step type: {step}")
-                QMessageBox.critical(None, "Error", step)
                 return False
             return True
         except Exception as e:
             self.logger.error(f"Error executing step: {step}, Error: {str(e)}")
-            QMessageBox.critical(None, "Error",
-                                 f"Failed to execute step: {step}")
+            self.speak(f"Failed to execute step: {step}")
             return False
 
     def run_powershell(self, command):
@@ -87,7 +87,7 @@ class CommandExecutor:
 
         for pattern, description in dangerous_patterns:
             if re.search(pattern, command.lower()):
-                QMessageBox.warning(None, "Command Execution", f"Blocked dangerous operation: {description}")
+                self.speak(f"Blocked dangerous operation: {description}")
                 return
 
         if 'remove-item' in command.lower():
@@ -105,15 +105,14 @@ class CommandExecutor:
                         raise FileNotFoundError(f"The file '{file_path}' does not exist.")
 
                     send2trash(file_path)
-                    QMessageBox.information(None, "File Moved",
-                                            f"File '{file_path}' has been moved to the Recycle Bin.")
+
+                    self.speak(f"File '{file_path}' has been moved to the Recycle Bin.")
                     return
                 except Exception as e:
-                    QMessageBox.warning(None, "Error", f"Failed to move the file to the Recycle Bin: {str(e)}")
+                    self.speak(f"Failed to move the file to the Recycle Bin: {str(e)}")
                     return
 
         if 'Remove-Item' in command:
-            QMessageBox.warning(None, "Error", f"Blocked file removal")
             return
 
         si = subprocess.STARTUPINFO()
@@ -193,15 +192,13 @@ class CommandExecutor:
 
         except Exception as e:
             self.logger.error(f"Error executing hotkey: {hotkey_command}, Error: {str(e)}")
-            QMessageBox.critical(None, "Error", f"Failed to execute hotkey: {hotkey_command}")
 
     def wait(self, seconds):
         try:
             time.sleep(seconds)
         except Exception as e:
             self.logger.error(f"Error during wait: {str(e)}")
-            QMessageBox.critical(None, "Error",
-                                 f"Failed to wait: {str(e)}")
+
 
     def run_clipboard(self, clipboard_command):
         try:
@@ -215,5 +212,4 @@ class CommandExecutor:
                     controller.release('v')
         except Exception as e:
             self.logger.error(f"Error executing clipboard command: {clipboard_command}, Error: {str(e)}")
-            QMessageBox.critical(None, "Error",
-                                 f"Failed to execute clipboard command: {clipboard_command}")
+

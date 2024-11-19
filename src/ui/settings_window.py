@@ -3,7 +3,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QIcon
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QCheckBox, QLineEdit, QLabel, QPushButton, QDialog,
-                             QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem)
+                             QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem, QComboBox)
 
 
 window_height = 710
@@ -230,6 +230,32 @@ class VoiceControlModuleWindow(QDialog):
         trigger_name_layout.addWidget(self.trigger_name_input)
         layout.addLayout(trigger_name_layout)
 
+        language_layout = QHBoxLayout()
+        language_label = QLabel("Speech Recognition Language:")
+        self.language_combobox = QComboBox()
+        self.language_combobox.addItems([
+            'en-US', 'en-GB', 'de-DE', 'fr-FR', 'es-ES', 'it-IT',
+            'zh-CN', 'ja-JP', 'ru-RU', 'ar-SA'
+        ])
+        self.language_combobox.currentTextChanged.connect(self.mark_modified)
+        language_layout.addWidget(language_label)
+        language_layout.addWidget(self.language_combobox)
+        layout.addLayout(language_layout)
+
+        microphone_layout = QHBoxLayout()
+        microphone_label = QLabel("Microphone Device:")
+        self.microphone_combobox = QComboBox()
+
+
+        import speech_recognition as sr
+        for i, mic in enumerate(sr.Microphone.list_microphone_names()):
+            self.microphone_combobox.addItem(mic, i)
+
+        self.microphone_combobox.currentIndexChanged.connect(self.mark_modified)
+        microphone_layout.addWidget(microphone_label)
+        microphone_layout.addWidget(self.microphone_combobox)
+        layout.addLayout(microphone_layout)
+
         module_group = QGroupBox("Enable Voice Control for Modules")
         module_layout = QVBoxLayout()
 
@@ -270,11 +296,24 @@ class VoiceControlModuleWindow(QDialog):
             self.settings.get_setting('voice_control.command_execution_module', True)
         )
 
+        language = self.settings.get_setting('voice_control.language', 'en-US')
+        self.language_combobox.setCurrentText(language)
+
+        microphone = self.settings.get_setting('voice_control.microphone', None)
+        if microphone is not None:
+            self.microphone_combobox.setCurrentIndex(microphone)
+
     def save_settings(self):
         self.settings.set_setting('voice_control.enabled',
                                   self.voice_control_enabled.isChecked())
         self.settings.set_setting('voice_control.trigger_name',
                                   self.trigger_name_input.text())
+        self.settings.set_setting(
+            'voice_control.language',
+            self.language_combobox.currentText()
+        )
+        self.settings.set_setting('voice_control.microphone',
+            self.microphone_combobox.currentData())
         self.settings.set_setting('voice_control.fix_module',
                                   self.fix_module.isChecked())
         self.settings.set_setting('voice_control.rephrase_module',

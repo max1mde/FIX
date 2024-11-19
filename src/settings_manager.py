@@ -62,7 +62,9 @@ class SettingsManager:
             'Task:'
         ),
         'voice_control.enabled': False,
-        'voice_control.trigger_name': 'Jerome',
+        'voice_control.trigger_name': 'Peter',
+        'voice_control.language': 'en-US',
+        'voice_control.microphone': None,
         'voice_control.fix_module': True,
         'voice_control.rephrase_module': True,
         'voice_control.translate_module': True,
