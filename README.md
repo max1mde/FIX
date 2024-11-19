@@ -81,10 +81,10 @@ pip install -r requirements.txt
 ### Hotkeys (Default settings)
 1. **Command Execution Prompt (Ctrl+F7)**
    - Opens popup with preset operations (for example: Open device manager)
-   - Allows custom AI instructions
-Example prompt:
-`open chrome 3 times, open spotify and skip song, open rick roll on youtube, close browser`
-![image](https://github.com/user-attachments/assets/fa3d0599-bbc5-48bb-b53d-900a756bcbc7)
+   - Allows custom AI instructions  
+Example prompt:  
+`open chrome 3 times, open spotify and skip song, open rick roll on youtube, close browser`  
+![image](https://github.com/user-attachments/assets/fa3d0599-bbc5-48bb-b53d-900a756bcbc7)  
 
 
 1. **Fix Text (Ctrl+F8)**
