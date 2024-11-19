@@ -1,6 +1,6 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/434cb205-95bd-4dbb-bfa7-1d390afc4f72">
-  <p>A Python-based autocorrect tool that generates or modifies text in any input field</p>
+  <p>A Python-based autocorrect tool that generates or modifies text in any input field & more</p>
   <p>
     <a href="https://github.com/max1mde/FIX/stargazers">
       <img src="https://img.shields.io/github/stars/max1mde/FIX.svg" alt="Stars">
