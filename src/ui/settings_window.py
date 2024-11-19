@@ -6,6 +6,9 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QGroupBox, QKeySequenceEdit, QTableWidget, QTableWidgetItem)
 
 
+window_height = 650
+window_width = 350
+
 class ConfirmationDialog(QDialog):
     def __init__(self, message, parent=None):
         super().__init__(parent)
@@ -516,7 +519,7 @@ class SettingsWindow(QMainWindow):
         bottom_layout.addWidget(github_link)
         layout.addLayout(bottom_layout)
 
-        self.setFixedSize(340, 610)
+        self.setFixedSize(window_width, window_height)
         self.load_settings()
 
         self.update_usage_display()
@@ -629,11 +632,11 @@ class SettingsWindow(QMainWindow):
         if self.endpoint.text() != default_endpoint or self.model.text() != default_model:
             self.usage_group.hide()
             self.usage_group.setEnabled(False)
-            self.setFixedSize(340, 475)
+            self.setFixedSize(window_width, window_height - 135)
         else:
             self.usage_group.show()
             self.usage_group.setEnabled(True)
-            self.setFixedSize(340, 610)
+            self.setFixedSize(window_width, window_height)
 
     def terminate_application(self):
         if self.settings_modified:
