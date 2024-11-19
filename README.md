@@ -21,6 +21,7 @@
 </div>
 
 ## Features
+- AI - **Command Execution Prompt (Ctrl+F7)**: Perform almost any action in windows like "open recycle bin" using a text box
 - **Fix Text (Ctrl+F8)**: Automatically corrects capitalization and punctuation
 - AI - **Rephrase (Ctrl+F9)**: AI-powered text rephrasing with multiple suggestions (first suggestion does not rephras the text just "fixes" the text)
 - AI - **Switch Suggestions (Ctrl+F10)**: Cycle through different rephrasing options (by default 3)
@@ -28,7 +29,7 @@
 - AI - **Custom Prompt (Ctrl+F12)**: Open a popup for custom AI text operations with some presets
 
 > [!IMPORTANT]  
-> Most features will NOT work properly without a valid API key.  
+> For all AI features, an open router API key is needed.
 
 ## Demo
 ![demo_1](demos/fix_demo_1.gif)
@@ -77,6 +78,10 @@ pip install -r requirements.txt
   - Press the appropriate hotkey
 
 ### Hotkeys (Default settings)
+1. **Command Execution Prompt (Ctrl+F7)**
+   - Opens popup with preset operations (for example: Open device manager)
+   - Allows custom AI instructions
+
 1. **Fix Text (Ctrl+F8)**
    - Adds capitalization, and punctuation
    - Applies custom replacement rules
