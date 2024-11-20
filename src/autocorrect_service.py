@@ -16,6 +16,7 @@ import speech_recognition as sr
 import pyttsx3
 import threading
 import queue
+import datetime
 
 from command_executer import CommandExecutor
 
@@ -64,50 +65,88 @@ class VoiceControl:
         self.engine.runAndWait()
 
     def recognize_speech(self):
+        MAX_COMMAND_TIME = 20
         pause_time = self.settings.get_setting('voice_control.pause_settings', 3)
+        trigger = self.service.settings.get_setting('voice_control.trigger_name', 'fix').lower()
+
         with sr.Microphone(device_index=self.microphone_device) as source:
-            self.recognizer.adjust_for_ambient_noise(source)
+
+            self.recognizer.adjust_for_ambient_noise(source, duration=1)
 
             while not self.stop_listening and self.settings.get_setting("voice_control.enabled", False):
                 try:
-
                     audio = self.recognizer.listen(source, timeout=None, phrase_time_limit=None)
 
                     try:
                         text = self.recognizer.recognize_google(audio, language=self.language)
                         print(f"Heard: {text}")
+
                         if text.lower() == "stop" or text.lower() == "stopp":
                             self.speak("Ok cancelled")
                             break
 
-                        trigger = self.service.settings.get_setting('voice_control.trigger_name', 'fix').lower()
-                        if trigger in text.lower():
+                        text_lower = text.lower()
+                        trigger_index = text_lower.rfind(trigger)
+
+                        if trigger_index != -1:
                             print(f"Trigger word '{trigger}' detected. Processing command...")
                             self.notification_worker.show_notification.emit(text, 3000)
 
-                            command_text = text.lower().replace(trigger, '').strip()
 
+                            command_text = text_lower[trigger_index + len(trigger):].strip()
+                            print(f"Initial command: {command_text}")
+                            self.notification_worker.show_notification.emit("Understanding...", 1000)
 
+                            full_command = [command_text]
                             start_time = time.time()
+                            last_successful_recognition = time.time()
+
                             while True:
+                                if time.time() - start_time > MAX_COMMAND_TIME:
+                                    print("Maximum command time reached, processing command")
+                                    break
                                 try:
 
-                                    additional_audio = self.recognizer.listen(source, timeout=4, phrase_time_limit=None)
+                                    additional_audio = self.recognizer.listen(
+                                        source,
+                                        timeout=1,
+                                        phrase_time_limit=None
+                                    )
 
                                     try:
-                                        additional_text = self.recognizer.recognize_google(additional_audio,
-                                                                                           language=self.language)
-                                        command_text += " " + additional_text.lower()
-                                        print(f"Command so far: {command_text}")
-                                        start_time = time.time()
-                                    except sr.UnknownValueError:
-                                        if time.time() - start_time > pause_time:
-                                            break
-                                except sr.WaitTimeoutError:
-                                    break
+                                        additional_text = self.recognizer.recognize_google(
+                                            additional_audio,
+                                            language=self.language
+                                        )
 
-                            print(f"Full Command: {command_text}")
-                            self.process_voice_command(command_text)
+
+                                        if trigger in additional_text.lower():
+                                            print("New trigger detected, resetting command")
+                                            break
+
+                                        full_command.append(additional_text.lower())
+                                        print(f"Added to command: {additional_text}")
+                                        last_successful_recognition = time.time()
+
+                                    except sr.UnknownValueError:
+
+                                        if time.time() - last_successful_recognition > pause_time:
+                                            break
+                                        continue
+
+                                except sr.WaitTimeoutError:
+
+                                    if time.time() - last_successful_recognition > pause_time:
+                                        break
+                                    continue
+
+                            final_command = " ".join(full_command).strip()
+                            if len(final_command.split()) < 2:
+                                print("Command too short, ignoring")
+                                continue
+                            print(f"Full Command: {final_command}")
+                            if final_command:
+                                self.process_voice_command(final_command)
 
                     except sr.UnknownValueError:
                         pass
@@ -115,7 +154,9 @@ class VoiceControl:
                         print(f"Could not request results; {e}")
 
                 except Exception as e:
-                    print(f"Unexpected error in speech recognition: {e}")
+                    print(f"Unexpected error in speech recognition: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
 
     def process_voice_command(self, command):
 
@@ -133,7 +174,13 @@ class VoiceControl:
                 controller.release('a')
 
         elif action_type == 'command' and self.settings.get_setting('voice_control.command_execution_module'):
-            self.notification_worker.show_notification.emit("Executing task...", 3000)
+            self.notification_worker.show_notification.emit("Understanding task...", 1000)
+            time.sleep(1)
+            self.notification_worker.show_notification.emit("Opening new Gönrgy can...", 1000)
+            time.sleep(1)
+            self.notification_worker.show_notification.emit("Thinking about the steps needed...", 1000)
+            time.sleep(1)
+            self.notification_worker.show_notification.emit("Executing task...", 4000)
             self.execute_command(command)
 
         elif action_type == 'fix' and self.settings.get_setting('voice_control.fix_module'):
@@ -141,8 +188,9 @@ class VoiceControl:
             self.fix_text()
 
         elif action_type == 'question' and self.settings.get_setting('voice_control.question_module'):
-            self.notification_worker.show_notification.emit("Thinking...", 4000)
-            response_data = self.make_api_request(command + " (very short answer and no markdown)")
+            self.notification_worker.show_notification.emit("Thinking...", 1500)
+            jetzt = datetime.datetime.now()
+            response_data = self.make_api_request("(Additional info: Date:"+str(jetzt.date())+" Time: "+str(jetzt.time())+") " + command + " (very short answer and no markdown)")
             response = response_data['choices'][0]['message']['content'].strip().lower()
             self.notification_worker.show_notification.emit(response, 7000)
             print(response)
