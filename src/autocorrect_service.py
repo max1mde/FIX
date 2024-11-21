@@ -176,8 +176,6 @@ class VoiceControl:
         elif action_type == 'command' and self.settings.get_setting('voice_control.command_execution_module'):
             self.notification_worker.show_notification.emit("Understanding task...", 1000)
             time.sleep(1)
-            self.notification_worker.show_notification.emit("Opening new Gönrgy can...", 1000)
-            time.sleep(1)
             self.notification_worker.show_notification.emit("Thinking about the steps needed...", 1000)
             time.sleep(1)
             self.notification_worker.show_notification.emit("Executing task...", 4000)
