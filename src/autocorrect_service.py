@@ -17,6 +17,7 @@ import pyttsx3
 import threading
 import queue
 import datetime
+from rapidfuzz import fuzz
 
 from command_executer import CommandExecutor
 
@@ -69,6 +70,9 @@ class VoiceControl:
         pause_time = self.settings.get_setting('voice_control.pause_settings', 3)
         trigger = self.service.settings.get_setting('voice_control.trigger_name', 'fix').lower()
 
+        similarity_threshold = 85
+        trigger_words = trigger.split()
+
         with sr.Microphone(device_index=self.microphone_device) as source:
 
             self.recognizer.adjust_for_ambient_noise(source, duration=1)
@@ -86,7 +90,16 @@ class VoiceControl:
                             break
 
                         text_lower = text.lower()
-                        trigger_index = text_lower.rfind(trigger)
+
+                        words = text_lower.split()
+
+                        #approximate trigger match
+                        trigger_index = -1
+                        for i in range(len(words) - len(trigger_words) + 1):
+                            segment = " ".join(words[i:i + len(trigger_words)])
+                            if fuzz.ratio(segment, trigger) >= similarity_threshold:
+                                trigger_index = i
+                                break
 
                         if trigger_index != -1:
                             print(f"Trigger word '{trigger}' detected. Processing command...")
