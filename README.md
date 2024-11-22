@@ -127,11 +127,5 @@ The executable will be created in the `dist` folder.
 ## Configuration
 Settings are stored in `%APPDATA%/Autocorrect/settings.json`
 
-<div align="center">
-    <h2>Community & support</h2>
-    <a href="https://discord.gg/2UTkYj26B4">
-        <img src="https://invidget.switchblade.xyz/2UTkYj26B4" alt="Discord Banner">
-    </a>
-    <h2>Contributing</h2>
-    <p>Contributions are welcome!</p>
-</div>
+## Community & Support
+[![DiscordBanner](https://invidget.switchblade.xyz/2UTkYj26B4)](https://discord.gg/2UTkYj26B4)
