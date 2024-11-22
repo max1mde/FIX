@@ -2,6 +2,9 @@
   <img src="https://github.com/user-attachments/assets/434cb205-95bd-4dbb-bfa7-1d390afc4f72">
   <p>A Python-based autocorrect tool that generates or modifies text in any input field & more</p>
   <p>
+    <a href="https://discord.gg/2UTkYj26B4" target="_blank">
+      <img src="https://img.shields.io/badge/Discord_Server-7289DA?style=flat&logo=discord&logoColor=white" alt="Join Discord Server" style="border-radius: 15px; height: 20px;">
+    </a>
     <a href="https://github.com/max1mde/FIX/stargazers">
       <img src="https://img.shields.io/github/stars/max1mde/FIX.svg" alt="Stars">
     </a>
